@@ -302,6 +302,15 @@
           }
         })
         .then((response) => {
+          if (response.data.error) {
+            this.$toasted.show(response.data.message, {
+              theme: "bubble",
+              position: "bottom-center",
+              duration : 5000
+            });
+            this.$router.push('/');
+            return;
+          }
           this.student = response.data;
           this.setupInformations();
         }).catch((err) => {
