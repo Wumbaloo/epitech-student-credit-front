@@ -1,12 +1,14 @@
 <template>
   <v-container class="fill-height">
     <v-row justify="center" align="center" style="flex-direction: column">
-      <v-col cols="6" class="text-center">
+      <v-col cols="12" md="12" lg="6" class="text-center">
         <h1 class="text-h3">Crédits possibles avec vos roadblocks :</h1>
-        <h2 class="text-h2">{{ credits }}</h2>
+        <h2 class="text-h2 py-10 font-weight-bold">{{ credits }}</h2>
       </v-col>
       <v-row style="width: 100%">
-        <v-col cols="3"
+        <v-col cols="12"
+               md="6"
+               lg="3"
                v-for="(block, i) in validationBlocks"
                :key="i">
           <v-card>
@@ -74,7 +76,7 @@
       updateBlockColor(block) {
         if (block.credits_obtains + block.credits_remains < block.credits_needed)
           block.textColor = "red--text font-weight-bold";
-        else if (block.credits_obtains > block.credits_needed)
+        else if (block.credits_obtains >= block.credits_needed)
           block.textColor = "green--text";
         else if (block.credits_obtains + block.credits_remains > block.credits_needed)
           block.textColor = "primary--text font-weight-medium";
@@ -199,7 +201,6 @@
     },
     created() {
       let autologin = this.$cookies.get("autologin") || this.getAutologin;
-      document.title = "Calculateur de crédits";
       this.isLoading = true;
       let roadblocksCopy = JSON.parse(JSON.stringify(roadblocks));
 

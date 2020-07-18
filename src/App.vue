@@ -14,8 +14,6 @@
           transition="scale-transition"
           width="125"
         />
-
-<!--        <span class="text-md-h4 font-weight-light">Profil étudiant</span>-->
       </div>
 
       <v-spacer></v-spacer>
@@ -66,6 +64,8 @@ export default {
   }),
   created() {
     this.logged = (this.$cookies.get("autologin") || this.getAutologin);
+    if (this.$route.name === "home" && this.logged)
+      this.$router.push({ name: 'about' }).catch(() => {});
   },
   updated() {
     this.logged = (this.$cookies.get("autologin") || this.getAutologin);

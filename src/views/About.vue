@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row justify="center" align="center">
-      <v-col cols="12" md="8">
+      <v-col cols="12" md="12" lg="8">
         <v-row justify="center" align="center" style="flex-direction: column">
           <v-col cols="12" md="6">
             <v-card
@@ -19,10 +19,10 @@
                   <v-skeleton-loader
                     :loading="isLoading"
                     type="avatar">
-                    <v-avatar size="105" height="120">
+                    <v-avatar size="105" height="125" tile color="#ffffff">
                       <v-img
                         class="profile-img"
-                        src="https://intra.epitech.eu/file/userprofil/commentview/william.gaudfrin.jpg"
+                        :src="require('@/assets/profilview.png')"
                         alt="Student profile"
                         contain
                         transition="scale-transition"
@@ -138,46 +138,63 @@
                       calculate-widths
                       :items="item.details[student['studentyear'] - 1]"
                   >
-                    <template v-slot:item.title="{ item }">
-                      {{ item.title }} ({{ item.codemodule }})
-                    </template>
-                    <template v-slot:item.credits="{ item }">
-                      <span v-if="item['credits']">
-                        {{ item['credits'] }}
-                      </span>
-                      <span v-else>
-                        -
-                      </span>
-                    </template>
-                    <template v-slot:item.grade="{ item }">
-                      <v-chip
-                          v-if="item.registered && isModuleObtained(item['grade']) === 2"
-                          color="green"
-                          small
-                          text-color="white">
-                        Acquis
-                      </v-chip>
-                      <v-chip
-                          v-else-if="item.registered && isModuleObtained(item['grade']) === 1"
-                          color="red"
-                          small
-                          text-color="white">
-                        Échec
-                      </v-chip>
-                      <v-chip
-                          v-else-if="item.registered"
-                          color="primary"
-                          small
-                          text-color="white">
-                        En cours
-                      </v-chip>
-                      <v-chip
-                          v-else
-                          color="red"
-                          small
-                          text-color="white">
-                        Non inscrit
-                      </v-chip>
+                    <template v-slot:item="{ item }">
+                      <tr @click="item.hub || item.pcp ? toggleDialog(item) : null" :class="item.hub || item.pcp ? 'cursor-click': ''">
+                        <v-tooltip right fixed allow-overflow offset-overflow>
+                          <template v-slot:activator="{ on, attrs }">
+                            <td v-on="on">{{ item.title }} ({{ item.codemodule }})</td>
+                            <td v-on="on" class="d-flex align-center justify-center">
+                              <v-chip
+                                  v-if="item.registered && isModuleObtained(item['grade']) === 2"
+                                  color="green"
+                                  small
+                                  text-color="white">
+                                Acquis
+                              </v-chip>
+                              <v-chip
+                                  v-else-if="item.registered && isModuleObtained(item['grade']) === 1"
+                                  color="red"
+                                  small
+                                  text-color="white">
+                                Échec
+                              </v-chip>
+                              <v-chip
+                                  v-else-if="item.registered"
+                                  color="primary"
+                                  small
+                                  text-color="white">
+                                En cours
+                              </v-chip>
+                              <v-chip
+                                  v-else
+                                  color="red"
+                                  small
+                                  text-color="white">
+                                Non inscrit
+                              </v-chip>
+                            </td>
+                            <td v-on="on" class="text-center">
+                              <span v-if="item['credits']">
+                                {{ item['credits'] }}
+                              </span>
+                                  <span v-else>
+                                -
+                              </span>
+                            </td>
+                          </template>
+                          <span v-show="item.projects"
+                                v-for="project in item.projects"
+                                :key="project">
+                            <span>
+                              {{ project }}
+                            </span>
+                            <br>
+                          </span>
+                          <span v-show="!item.projects">
+                            Aucune information sur les projets de ce module.
+                          </span>
+                        </v-tooltip>
+                      </tr>
                     </template>
                     <template v-slot:no-data>
                       Pas de module trouvé pour ce roadblock
@@ -197,13 +214,12 @@
                :width="128"
       ></loading>
     </v-row>
-    <HubTable :moduleProp="{}">
-      <template v-slot:activator="{ on }">
-        <v-btn v-on="on">
-          Click Me
-        </v-btn>
-      </template>
+    <HubTable :student="student"
+              v-model="hubDialog">
     </HubTable>
+    <DevPCP :student="student"
+              v-model="devPcpDialog">
+    </DevPCP>
   </v-container>
 </template>
 
@@ -213,6 +229,7 @@
   import { roadblocks } from "@/assets/roadblocks.js";
   import Loading from 'vue-loading-overlay';
   import HubTable from "@/components/HubTable";
+  import DevPCP from "@/components/DevPCP";
   import 'vue-loading-overlay/dist/vue-loading.css';
 
   export default {
@@ -222,14 +239,15 @@
     },
     components: {
       Loading,
-      HubTable
+      HubTable,
+      DevPCP
     },
     methods: {
       updateBlockColor(block) {
         if (block.credits_obtains + block.credits_remains < block.credits_needed) {
           block.textColor = "red--text font-weight-bold";
           block.warning = true;
-        } else if (block.credits_obtains > block.credits_needed)
+        } else if (block.credits_obtains >= block.credits_needed)
           block.textColor = "green--text";
         else if (block.credits_obtains + block.credits_remains > block.credits_needed)
           block.textColor = "primary--text font-weight-medium";
@@ -243,13 +261,17 @@
           return (1);
         return (0);
       },
-      getModuleInfo: function (code) {
+      getModuleInfo: function (module) {
         let modules = [];
 
         for (let i = 0; i < this.student.modules.length; i++) {
-          if (this.student.modules[i]['codemodule'] === code &&
-            parseInt(this.student.modules[i]['scolaryear']) === parseInt(this.student['scolaryear']))
+          if (this.student.modules[i]['codemodule'] === module['codemodule'] &&
+            parseInt(this.student.modules[i]['scolaryear']) === parseInt(this.student['scolaryear'])) {
+            this.student.modules[i].hub = module.hub;
+            this.student.modules[i].pcp = module.pcp;
+            this.student.modules[i].projects = module.projects;
             modules.push(this.student.modules[i]);
+          }
         }
         return modules;
       },
@@ -328,12 +350,15 @@
         roadblock.credits_needed = yearBlock.needed;
         let newYearBlock = [];
         for (let i = 0; i < yearBlock.modules.length; i++) {
-          let modules = this.getModuleInfo(yearBlock.modules[i]['codemodule']);
+          let modules = this.getModuleInfo(yearBlock.modules[i]);
           if (!modules || modules.length === 0) {
             let instance = this.getModuleInstance(yearBlock.modules[i]);
             this.getNotRegisteredModuleInfo(yearBlock.modules[i]['codemodule'], instance)
             .then((res) => {
               res.registered = false;
+              res.hub = yearBlock.modules[i].hub;
+              res.pcp = yearBlock.modules[i].pcp;
+              res.projects = yearBlock.modules[i].projects;
               if (!res.error &&
                 parseInt(res['scolaryear']) === parseInt(this.student['scolaryear'])) {
                 newYearBlock.push(res);
@@ -360,6 +385,11 @@
       setupInformations: function () {
         this.barrages[0].credits_obtains = this.student['credits'];
         this.barrages[0].credits_needed = parseInt(this.student['studentyear']) * 60;
+        this.barrages[0].credits_remains = 0;
+        for (let i = 0; i < this.student['modules'].length; i++) {
+          if (this.student['modules'][i]['grade'] === "-")
+            this.barrages[0].credits_remains += this.student['modules'][i]['credits'];
+        }
         this.isLoading = false;
         let tepitech = this.getModuleNote("B-ANG-058");
         if (tepitech)
@@ -368,13 +398,18 @@
         for (let i = 3; i < this.barrages.length; i++)
           this.updateRoadblockInfo(this.barrages[i]);
         this.detailLoading = false;
+      },
+      toggleDialog(item) {
+        if (item.hub)
+          this.hubDialog = !this.hubDialog;
+        else if (item.pcp)
+          this.devPcpDialog = !this.devPcpDialog;
       }
     },
     created: function () {
       let autologin = this.$cookies.get("autologin") || this.getAutologin;
       this.isLoading = true;
       this.barrages = JSON.parse(JSON.stringify(roadblocks));
-      document.title = "Profil étudiant";
 
       axios
         .get("student/info", {
@@ -405,6 +440,8 @@
     },
     data: () => ({
       isLoading: false,
+      hubDialog: false,
+      devPcpDialog: false,
       detailLoading: true,
       student: {
       },
@@ -448,7 +485,7 @@
 
 <style>
   .profile-img {
-    border: 2px solid grey;
+    /*border: 2px solid grey;*/
   }
 
   .profile-img .v-image__image {
@@ -461,5 +498,15 @@
 
   .hide-icon .v-expansion-panel-header .v-expansion-panel-header__icon .v-icon {
     color: transparent !important;
+  }
+
+  .cursor-click {
+    cursor: pointer;
+  }
+
+  @media only screen and (max-width: 768px) {
+    td {
+      min-height: 120px;
+    }
   }
 </style>
