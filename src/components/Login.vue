@@ -64,6 +64,8 @@
           return;
         this.$cookies.set("autologin", this.loginText, "14d");
         this.$store.commit("setAutologin", this.loginText);
+        this.$emit('toggleHelp', true);
+        this.loginText = "";
         this.$router.push('about');
       }
     }

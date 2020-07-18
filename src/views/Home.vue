@@ -126,8 +126,11 @@ export default {
     helpState: 1
   }),
   methods: {
-    toggleHelp() {
-      this.showHelp = !this.showHelp;
+    toggleHelp(forceClose) {
+      if (forceClose)
+        this.showHelp = false;
+      else
+        this.showHelp = !this.showHelp;
       this.helpState = 1;
     },
     goToAutologPage() {
