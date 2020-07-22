@@ -25,7 +25,7 @@
           large
           to="calculator"
       >
-        <span class="subtitle-2 mr-2 hidden-sm-and-down">Calculatrice de crédits</span>
+        <span class="subtitle-2 mr-2 hidden-sm-and-down">Simulateur</span>
         <v-icon>mdi-math-compass</v-icon>
       </v-btn>
       <v-btn
@@ -69,6 +69,8 @@ export default {
   },
   updated() {
     this.logged = (this.$cookies.get("autologin") || this.getAutologin);
+    if (this.$route.name !== "home" && !this.logged)
+      this.$router.push({ name: 'home' }).catch(() => {});
   },
   methods: {
     goToHomepage() {

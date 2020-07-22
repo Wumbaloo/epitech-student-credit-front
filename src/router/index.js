@@ -39,7 +39,7 @@ Vue.use(VueRouter)
     name: 'calculator',
     component: () => import(/* webpackChunkName: "calculator" */ '../views/Calculator.vue'),
     meta: {
-      title: 'Calculatrice',
+      title: 'Simulateur',
       metaTags: [
         {
           name: 'description',

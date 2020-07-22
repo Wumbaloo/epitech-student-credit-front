@@ -11,18 +11,9 @@ Vue.config.productionTip = false
 Vue.use(require('vue-cookies'));
 Vue.use(Toasted);
 
-// axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "http://localhost:3000/";
 axios.defaults.headers = {
   'Content-Type': 'application/json;charset=utf-8',
-  // 'X-PINGOTHER': 'pingpong',
-  // 'Accept': '*/*',
-  // 'Origin': 'http://localhost:3000',
-  // 'Access-Control-Allow-Origin': 'https://localhost:8080',
-  // 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
-  // 'Access-Control-Allow-Methods': 'GET,POST',
-  // 'Access-Control-Allow-Credentials': 'true',
-  // 'Vary': 'Origin'
 };
 
 Vue.prototype.$http = axios;

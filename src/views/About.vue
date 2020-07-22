@@ -80,10 +80,10 @@
               multiple
               focusable>
               <v-expansion-panel readonly disabled>
-                <v-expansion-panel-header>
+                <v-expansion-panel-header class="grey lighten-3 font-weight-medium">
                   <v-row no-gutters>
                     <v-col cols="4">
-                      Barrage
+                      Barrages
                     </v-col>
                     <v-col cols="4" style="text-align: center">
                       Nombre de crédits en attente
@@ -100,13 +100,14 @@
                   :class="!item.is_roadblock ? 'hide-icon' : 'show-icon'"
                   v-for="(item, i) in barrages"
                   :key="i"
+                  v-if="i !== 1 && i !== barrages.length - 1"
               >
                 <v-expansion-panel-header expand-icon="mdi-menu-down">
                   <v-row no-gutters align="center"
                          :class="item.textColor">
                     <v-col cols="4">
                       <v-row no-gutters justify="space-between" align="center">
-                        <span>{{ item.name }}</span>
+                        <span :class="item.is_roadblock ? 'ml-8' : ''">{{ item.name }}</span>
                         <v-tooltip bottom v-if="item['warning']">
                           <template v-slot:activator="{ on, attrs }">
                             <v-icon color="red"
@@ -115,6 +116,10 @@
                           </template>
                           <span>Ce barrage nécessite votre attention</span>
                         </v-tooltip>
+                        <v-icon v-else-if="item['credits_obtains'] >= item['credits_needed']"
+                                color="green">
+                          mdi-check
+                        </v-icon>
                       </v-row>
                     </v-col>
                     <v-col cols="4" style="text-align: center">
@@ -139,20 +144,20 @@
                       :items="item.details[student['studentyear'] - 1]"
                   >
                     <template v-slot:item="{ item }">
-                      <tr @click="item.hub || item.pcp ? toggleDialog(item) : null" :class="item.hub || item.pcp ? 'cursor-click': ''">
+                      <tr @click="openItem(item)" class="cursor-click">
                         <v-tooltip right fixed allow-overflow offset-overflow>
                           <template v-slot:activator="{ on, attrs }">
                             <td v-on="on">{{ item.title }} ({{ item.codemodule }})</td>
                             <td v-on="on" class="d-flex align-center justify-center">
                               <v-chip
-                                  v-if="item.registered && isModuleObtained(item['grade']) === 2"
+                                  v-if="item.registered && isModuleObtained(item) === 2"
                                   color="green"
                                   small
                                   text-color="white">
                                 Acquis
                               </v-chip>
                               <v-chip
-                                  v-else-if="item.registered && isModuleObtained(item['grade']) === 1"
+                                  v-else-if="item.registered && isModuleObtained(item) === 0"
                                   color="red"
                                   small
                                   text-color="white">
@@ -174,11 +179,8 @@
                               </v-chip>
                             </td>
                             <td v-on="on" class="text-center">
-                              <span v-if="item['credits']">
+                              <span>
                                 {{ item['credits'] }}
-                              </span>
-                                  <span v-else>
-                                -
                               </span>
                             </td>
                           </template>
@@ -203,6 +205,145 @@
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-expansion-panels>
+            <v-expansion-panels
+                class="my-3"
+                accordion
+                multiple
+                focusable>
+              <v-expansion-panel
+                  readonly
+                  class="hide-icon"
+              >
+                <v-expansion-panel-header expand-icon="mdi-menu-down" class="grey lighten-3">
+                  <v-row no-gutters align="center"
+                         :class="barrages[1].textColor">
+                    <v-col cols="4">
+                      <v-row no-gutters justify="space-between" align="center">
+                        <span>{{ barrages[1].name }}</span>
+                        <v-tooltip bottom v-if="barrages[1].credits_obtains < barrages[1].credits_needed">
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-icon color="red"
+                                    v-on="on"
+                                    v-bind="attrs">mdi-alert</v-icon>
+                          </template>
+                          <span>Ce barrage nécessite votre attention</span>
+                        </v-tooltip>
+                        <v-icon v-else-if="barrages[1]['credits_obtains'] >= barrages[1]['credits_needed']"
+                                color="green">
+                          mdi-check
+                        </v-icon>
+                      </v-row>
+                    </v-col>
+                    <v-col cols="4" style="text-align: center">
+                      Score obtenu : <span class="font-weight-medium">{{ barrages[1].credits_obtains }}</span>
+                    </v-col>
+                  </v-row>
+                </v-expansion-panel-header>
+              </v-expansion-panel>
+            </v-expansion-panels>
+            <v-expansion-panels
+                class="my-3"
+                accordion
+                multiple
+                focusable>
+              <v-expansion-panel>
+                <v-expansion-panel-header expand-icon="mdi-menu-down">
+                  <v-row no-gutters align="center"
+                         :class="barrages[8].textColor">
+                    <v-col cols="4">
+                      <v-row no-gutters justify="space-between" align="center">
+                        <span>{{ barrages[8].name }}</span>
+                        <v-tooltip bottom v-if="barrages[8].credits_obtains < barrages[8].credits_needed">
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-icon color="red"
+                                    v-on="on"
+                                    v-bind="attrs">mdi-alert</v-icon>
+                          </template>
+                          <span>Ce barrage nécessite votre attention</span>
+                        </v-tooltip>
+                        <v-icon v-else-if="barrages[8]['credits_obtains'] >= barrages[8]['credits_needed']"
+                                color="green">
+                          mdi-check
+                        </v-icon>
+                      </v-row>
+                    </v-col>
+                    <v-col cols="4" style="text-align: center">
+                      Score obtenu : <span class="font-weight-medium">{{ barrages[8].credits_obtains }}</span>
+                    </v-col>
+                  </v-row>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-data-table
+                      disable-sort
+                      hide-default-footer
+                      v-if="barrages[8].is_roadblock"
+                      :headers="detailsHeader"
+                      :loading="detailLoading"
+                      calculate-widths
+                      :items="barrages[8].details[student['studentyear'] - 1]"
+                  >
+                    <template v-slot:item="{ item }">
+                      <tr @click="openItem(item)" class="cursor-click">
+                        <v-tooltip right fixed allow-overflow offset-overflow>
+                          <template v-slot:activator="{ on, attrs }">
+                            <td v-on="on">{{ item.title }} ({{ item.codemodule }})</td>
+                            <td v-on="on" class="d-flex align-center justify-center">
+                              <v-chip
+                                  v-if="item.registered && isModuleObtained(item) === 2"
+                                  color="green"
+                                  small
+                                  text-color="white">
+                                Acquis
+                              </v-chip>
+                              <v-chip
+                                  v-else-if="item.registered && isModuleObtained(item) === 0"
+                                  color="red"
+                                  small
+                                  text-color="white">
+                                Échec
+                              </v-chip>
+                              <v-chip
+                                  v-else-if="item.registered"
+                                  color="primary"
+                                  small
+                                  text-color="white">
+                                En cours
+                              </v-chip>
+                              <v-chip
+                                  v-else
+                                  color="red"
+                                  small
+                                  text-color="white">
+                                Non inscrit
+                              </v-chip>
+                            </td>
+                            <td v-on="on" class="text-center">
+                              <span>
+                                {{ item['credits'] }}
+                              </span>
+                            </td>
+                          </template>
+                          <span v-show="item.projects"
+                                v-for="project in item.projects"
+                                :key="project">
+                            <span>
+                              {{ project }}
+                            </span>
+                            <br>
+                          </span>
+                          <span v-show="!item.projects">
+                            Aucune information sur les projets de ce module.
+                          </span>
+                        </v-tooltip>
+                      </tr>
+                    </template>
+                    <template v-slot:no-data>
+                      Pas de module trouvé pour ce roadblock
+                    </template>
+                  </v-data-table>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+              </v-expansion-panels>
             </v-skeleton-loader>
           </v-col>
         </v-row>
@@ -252,12 +393,12 @@
         else if (block.credits_obtains + block.credits_remains > block.credits_needed)
           block.textColor = "primary--text font-weight-medium";
       },
-      isModuleObtained: function(grade) {
-        if (!grade)
+      isModuleObtained: function(module) {
+        if (!module['grade'])
           return (0);
-        if (grade !== '-' && grade.toLowerCase().indexOf("echec") === -1)
+        if (module['grade'] !== '-' && module['grade'].toLowerCase().indexOf("echec") === -1)
           return (2);
-        else if (grade === '-')
+        else if (module['grade'] === '-')
           return (1);
         return (0);
       },
@@ -279,7 +420,7 @@
         if (!module || !this.student)
           return null;
         let location = this.student['location'].split('/')[1];
-        if (module['codeinstance'][0].toUpperCase() !== module['codeinstance'][0].toLowerCase()) // It's a letter
+        if (module['codeinstance'] && module['codeinstance'][0].toUpperCase() !== module['codeinstance'][0].toLowerCase()) // It's a letter
           return (module['codeinstance']);
         else if (module['codeinstance'])
           return (location + "-" + module['codeinstance']);
@@ -373,9 +514,9 @@
             modules[x].registered = true;
             yearBlock.modules = this.removeItemAll(yearBlock.modules, modules[x]);
             newYearBlock.push(modules[x]);
-            if (this.isModuleObtained(modules[x]['grade']) === 2)
+            if (this.isModuleObtained(modules[x]) === 2)
               roadblock.credits_obtains += modules[x]['credits'];
-            else if (this.isModuleObtained(modules[x]['grade']) === 1)
+            else if (this.isModuleObtained(modules[x]) === 1)
               roadblock.credits_remains += modules[x]['credits'];
           }
         }
@@ -391,9 +532,11 @@
             this.barrages[0].credits_remains += this.student['modules'][i]['credits'];
         }
         this.isLoading = false;
+        this.barrages[1].credits_needed = roadblocks[1].score_needed[parseInt(this.student['studentyear']) - 1];
         let tepitech = this.getModuleNote("B-ANG-058");
         if (tepitech)
           this.barrages[1].credits_obtains = tepitech['final_note'];
+        this.updateBlockColor(this.barrages[1]);
         this.updateBlockColor(this.barrages[0]);
         for (let i = 3; i < this.barrages.length; i++)
           this.updateRoadblockInfo(this.barrages[i]);
@@ -404,6 +547,16 @@
           this.hubDialog = !this.hubDialog;
         else if (item.pcp)
           this.devPcpDialog = !this.devPcpDialog;
+      },
+      openItem(item) {
+        if (item.hub || item.pcp) {
+          this.toggleDialog(item);
+          return;
+        }
+        if (!item['scolaryear'] || !item['codemodule'] || !item['codeinstance'])
+          return;
+        let url = "https://intra.epitech.eu/module/" + item['scolaryear'] + "/" + item['codemodule'] + "/" + item['codeinstance'];
+        window.open(url);
       }
     },
     created: function () {
@@ -411,6 +564,15 @@
       this.isLoading = true;
       this.barrages = JSON.parse(JSON.stringify(roadblocks));
 
+      if (!autologin) {
+        this.$toasted.show("Merci de vous authentifier pour accéder à cette page.", {
+          theme: "bubble",
+          position: "bottom-center",
+          duration : 5000
+        });
+        this.$router.push({ name: 'home' }).catch(() => {});
+        return;
+      }
       axios
         .get("student/info", {
           headers: {
@@ -452,13 +614,13 @@
           width: "31.5%"
         },
         {
-          text: "État",
+          text: "Crédits",
           value: "grade",
           align: "center",
           width: "34%"
         },
         {
-          text: "Crédits",
+          text: "État",
           value: "credits",
           align: "center",
           width: "34%"

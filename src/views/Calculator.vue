@@ -2,8 +2,13 @@
   <v-container class="fill-height">
     <v-row justify="center" align="center" style="flex-direction: column">
       <v-col cols="12" md="12" lg="6" class="text-center">
-        <h1 class="text-h3">Crédits possibles avec vos roadblocks :</h1>
+        <h1 class="text-h3">Crédits possibles avec vos modules :</h1>
         <h2 class="text-h2 py-10 font-weight-bold">{{ credits }}</h2>
+        <v-btn @click="eraseSimulation()"
+               color="red"
+               dark>
+          Réinitialiser ma simulation
+        </v-btn>
       </v-col>
       <v-row style="width: 100%">
         <v-col cols="12"
@@ -12,7 +17,7 @@
                v-for="(block, i) in validationBlocks"
                :key="i">
           <v-card>
-            <v-card-title class="text-h5" :class="block.textColor">
+            <v-card-title class="text-h5" :class="!block.other ? block.textColor : ''">
               {{ block.name }}
               <v-spacer></v-spacer>
               ({{ block.credits_obtains }} / {{ block.credits_needed }})
@@ -31,6 +36,7 @@
                 </v-col>
                 <v-col cols="2" style="display: flex; justify-content: end">
                   <v-btn class="mx-2"
+                         v-if="module['credits'] > 0"
                          fab
                          dark
                          small
@@ -73,6 +79,47 @@
       validationBlocks: []
     }),
     methods: {
+      saveConfig() {
+        let array = [];
+        let year = parseInt(this.student['studentyear']) - 1;
+
+        for (let i = 0; i < this.validationBlocks.length; i++) {
+          for (let j = 0; j < this.validationBlocks[i].details[year].length; j++) {
+            if (this.validationBlocks[i].details[year][j].toggle)
+              array.push(this.validationBlocks[i].details[year][j].codemodule);
+          }
+        }
+        this.$cookies.set("yearSimulation", JSON.stringify(array), "14d");
+      },
+      restoreConfig() {
+        let config = this.$cookies.get("yearSimulation");
+        let year = parseInt(this.student['studentyear']) - 1;
+
+        if (!config)
+          return;
+        config = JSON.parse(config);
+        for (let i = 0; i < config.length; i++) {
+          for (let k = 0; k < this.validationBlocks.length; k++) {
+            for (let x = 0; x < this.validationBlocks[k].details[year].length; x++) {
+              if (this.validationBlocks[k].details[year][x]['codemodule'] === config[i])
+                this.toggleModule(this.validationBlocks[k], this.validationBlocks[k].details[year][x], true);
+            }
+          }
+        }
+      },
+      eraseSimulation() {
+        let year = parseInt(this.student['studentyear']) - 1;
+
+        this.$cookies.set('yearSimulation', '', '0');
+        for (let i = 0; i < this.validationBlocks.length; i++) {
+          for (let i = 0; i < this.validationBlocks.length; i++) {
+            for (let j = 0; j < this.validationBlocks[i].details[year].length; j++) {
+              if (this.validationBlocks[i].details[year][j].toggle)
+                this.toggleModule(this.validationBlocks[i], this.validationBlocks[i].details[year][j]);
+            }
+          }
+        }
+      },
       updateBlockColor(block) {
         if (block.credits_obtains + block.credits_remains < block.credits_needed)
           block.textColor = "red--text font-weight-bold";
@@ -81,7 +128,7 @@
         else if (block.credits_obtains + block.credits_remains > block.credits_needed)
           block.textColor = "primary--text font-weight-medium";
       },
-      toggleModule(block, module) {
+      toggleModule(block, module, restore) {
         if (module.toggle) {
           block.credits_obtains -= module.credits;
           this.credits -= module.credits;
@@ -91,6 +138,8 @@
         }
         this.updateBlockColor(block);
         module.toggle = !module.toggle
+        if (!restore)
+          this.saveConfig();
       },
       getModuleInfo: function (code) {
         let modules = [];
@@ -106,7 +155,7 @@
         if (!module || !this.student)
           return null;
         let location = this.student['location'].split('/')[1];
-        if (module['codeinstance'][0].toUpperCase() !== module['codeinstance'][0].toLowerCase()) // It's a letter
+        if (module['codeinstance'] && module['codeinstance'][0].toUpperCase() !== module['codeinstance'][0].toLowerCase()) // It's a letter
           return (module['codeinstance']);
         else if (module['codeinstance'])
           return (location + "-" + module['codeinstance']);
@@ -195,6 +244,33 @@
       },
       setupInformations: function () {
         this.isLoading = false;
+        // this.validationBlocks.push({
+        //   name: "Modules hors roadblocks",
+        //   other: true,
+        //   credits_obtains: 0,
+        //   credits_needed: 0,
+        //   credits_remains: 0,
+        //   is_roadblock: true,
+        //   details: [
+        //     {needed: 0, modules: []}, {needed: 0, modules: []}, {needed: 0, modules: []}
+        //   ]
+        // })
+        // for (let i = 0; i < this.student['modules'].length; i++) {
+        //   if (parseInt(this.student.modules[i]['scolaryear']) !== parseInt(this.student['scolaryear']) || this.student['modules'][i].credits === 0)
+        //     continue;
+        //   let found = false;
+        //   for (let j = 0; j < this.validationBlocks.length; j++) {
+        //     let block = this.validationBlocks[j].details[this.student['studentyear'] - 1];
+        //     for (let k = 0; k < block.modules.length; k++) {
+        //       if (block.modules[k]['codemodule'] === this.student.modules[i]['codemodule']) {
+        //         found = true;
+        //         break
+        //       }
+        //     }
+        //   }
+        //   if (!found)
+        //     this.validationBlocks[this.validationBlocks.length - 1].details[this.student['studentyear'] - 1].modules.push(this.student['modules'][i]);
+        // }
         for (let i = 0; i < this.validationBlocks.length; i++)
           this.updateRoadblockInfo(this.validationBlocks[i]);
       }
@@ -204,6 +280,15 @@
       this.isLoading = true;
       let roadblocksCopy = JSON.parse(JSON.stringify(roadblocks));
 
+      if (!autologin) {
+        this.$toasted.show("Merci de vous authentifier pour accéder à cette page.", {
+          theme: "bubble",
+          position: "bottom-center",
+          duration : 5000
+        });
+        this.$router.push({ name: 'home' }).catch(() => {});
+        return;
+      }
       for (let i = 0; i < roadblocksCopy.length; i++) {
         if (roadblocksCopy[i].is_roadblock) {
           this.validationBlocks.push(roadblocksCopy[i]);
@@ -227,13 +312,14 @@
           }
           this.student = response.data;
           this.setupInformations();
-        }).catch((err) => {
-        this.$toasted.show(err.message, {
-          theme: "bubble",
-          position: "bottom-center",
-          duration : 5000
-        });
-        this.$router.push({ name: 'home' }).catch(() => {});
+          this.restoreConfig();
+        // }).catch((err) => {
+        // this.$toasted.show(err.message, {
+        //   theme: "bubble",
+        //   position: "bottom-center",
+        //   duration : 5000
+        // });
+        // this.$router.push({ name: 'home' }).catch(() => {});
       });
     }
   }

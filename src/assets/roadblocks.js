@@ -8,8 +8,16 @@ let roadblocks = [
   {
     name: "Anglais",
     credits_obtains: 0,
-    credits_needed: null,
-    credits_remains: "N/A"
+    credits_needed: 0,
+    credits_remains: 0,
+    score_needed: [
+      // Tek 1
+      600,
+      // Tek 2
+      700,
+      // Tek 3,
+      750
+    ]
   },
   {
     name: "Roadblocks",
@@ -203,6 +211,66 @@ let roadblocks = [
           {codemodule: "B-PCP-000", pcp: true},
           {codemodule: "G-FRE-010"},
           {codemodule: "G-EPI-010"}, {codemodule: "G-EPI-004"}
+        ]
+      }
+    ]
+  },
+  {
+    name: "Extra Units",
+    is_roadblock: true,
+    credits_obtains: 0,
+    credits_needed: 0,
+    credits_remains: 0,
+    details: [
+      { // Tek 1
+        needed: 0,
+        modules: [
+          {codemodule: "B-CPE-130", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-CPE-210", projects: ["Mail professionnel", "RUSH - Les Seigneurs des mots", "Lettre argumentée"]}
+        ]
+      },
+      { // Tek 2
+        needed: 0,
+        modules: [
+        ]
+      },
+      { // Tek 3
+        needed: 24,
+        modules: [
+          {codemodule: "B-FRE-100", projects: ["Mail professionnel", "RUSH - Les Seigneurs des mots", "Lettre argumentée"]},
+          {codemodule: "B-FRE-200", projects: ["\"Le mode d'emploi : prendre le lecteur par la main\"", "\"Faire préciser\"", "\"La lettre de vente : informer, argumenter, valoriser\""]},
+          {codemodule: "B-FRE-300"},
+          {codemodule: "B-FRE-400", projects: ["Mission délicate : recadrer un collègue", "Diaporama pour décrocher 1 million de dollars", "Rédiger un bilan d'expérience"]},
+          {codemodule: "B-FRE-501", projects: ["Avocat du diable", "3 emails", "Mémo professionnel", "Informer : Le magazine du geek"]},
+          {codemodule: "B-PRO-600", projects: ["Internship"]},
+        ]
+      }
+    ]
+  },
+  {
+    name: "Modules hors roadblocks",
+    is_roadblock: true,
+    credits_obtains: 0,
+    credits_needed: 0,
+    credits_remains: 0,
+    other: true,
+    details: [
+      { // Tek 1
+        needed: 0,
+        modules: [
+          {codemodule: "B-EPI-110", projects: ["IONIS Startup"]}
+        ]
+      },
+      { // Tek 2
+        needed: 0,
+        modules: [
+          {codemodule: "B-EPI-300", projects: ["Project Week"]},
+          {codemodule: "B-PRO-300", projects: ["Internship"]}
+        ]
+      },
+      { // Tek 3
+        needed: 0,
+        modules: [
         ]
       }
     ]
