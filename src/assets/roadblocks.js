@@ -101,7 +101,7 @@ let roadblocks = [
           {codemodule: "B-CNA-410", codeinstance: "4-1", projects: ["Groundhog"]},
           {codemodule: "B-MAT-400", codeinstance: "4-1", projects: ["201yams", "202unsold", "203hotline", "204ducks", "205IQ", "206neutrinos", "207demography", "208dowels", "209poll"]},
           {codemodule: "B-NSA-400", codeinstance: "4-1", projects: ["SNA"]},
-          {codemodule: "B-SHL-400", codeinstance: "4-1"},
+          {codemodule: "B-SHL-300", codeinstance: "4-1", projects: ["BDSH"]},
           {codemodule: "B-PSU-402", codeinstance: "4-1", projects: ["ftrace", "strace"]},
           {codemodule: "B-ASM-400", codeinstance: "4-1", projects: ["MiniLibC"]},
           {codemodule: "B-FUN-400", codeinstance: "4-1", projects: ["Wolfram", "Image Compressor"]},

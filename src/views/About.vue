@@ -248,23 +248,10 @@
                 focusable>
               <v-expansion-panel>
                 <v-expansion-panel-header expand-icon="mdi-menu-down">
-                  <v-row no-gutters align="center"
-                         :class="barrages[8].textColor">
+                  <v-row no-gutters align="center">
                     <v-col cols="4">
                       <v-row no-gutters justify="space-between" align="center">
                         <span>{{ barrages[8].name }}</span>
-                        <v-tooltip bottom v-if="barrages[8].credits_obtains < barrages[8].credits_needed">
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-icon color="red"
-                                    v-on="on"
-                                    v-bind="attrs">mdi-alert</v-icon>
-                          </template>
-                          <span>Ce barrage nécessite votre attention</span>
-                        </v-tooltip>
-                        <v-icon v-else-if="barrages[8]['credits_obtains'] >= barrages[8]['credits_needed']"
-                                color="green">
-                          mdi-check
-                        </v-icon>
                       </v-row>
                     </v-col>
                     <v-col cols="4" style="text-align: center">

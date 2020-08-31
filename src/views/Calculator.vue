@@ -244,33 +244,6 @@
       },
       setupInformations: function () {
         this.isLoading = false;
-        // this.validationBlocks.push({
-        //   name: "Modules hors roadblocks",
-        //   other: true,
-        //   credits_obtains: 0,
-        //   credits_needed: 0,
-        //   credits_remains: 0,
-        //   is_roadblock: true,
-        //   details: [
-        //     {needed: 0, modules: []}, {needed: 0, modules: []}, {needed: 0, modules: []}
-        //   ]
-        // })
-        // for (let i = 0; i < this.student['modules'].length; i++) {
-        //   if (parseInt(this.student.modules[i]['scolaryear']) !== parseInt(this.student['scolaryear']) || this.student['modules'][i].credits === 0)
-        //     continue;
-        //   let found = false;
-        //   for (let j = 0; j < this.validationBlocks.length; j++) {
-        //     let block = this.validationBlocks[j].details[this.student['studentyear'] - 1];
-        //     for (let k = 0; k < block.modules.length; k++) {
-        //       if (block.modules[k]['codemodule'] === this.student.modules[i]['codemodule']) {
-        //         found = true;
-        //         break
-        //       }
-        //     }
-        //   }
-        //   if (!found)
-        //     this.validationBlocks[this.validationBlocks.length - 1].details[this.student['studentyear'] - 1].modules.push(this.student['modules'][i]);
-        // }
         for (let i = 0; i < this.validationBlocks.length; i++)
           this.updateRoadblockInfo(this.validationBlocks[i]);
       }
@@ -313,13 +286,13 @@
           this.student = response.data;
           this.setupInformations();
           this.restoreConfig();
-        // }).catch((err) => {
-        // this.$toasted.show(err.message, {
-        //   theme: "bubble",
-        //   position: "bottom-center",
-        //   duration : 5000
-        // });
-        // this.$router.push({ name: 'home' }).catch(() => {});
+        }).catch((err) => {
+        this.$toasted.show(err.message, {
+          theme: "bubble",
+          position: "bottom-center",
+          duration : 5000
+        });
+        this.$router.push({ name: 'home' }).catch(() => {});
       });
     }
   }

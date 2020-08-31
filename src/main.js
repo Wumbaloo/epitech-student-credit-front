@@ -11,7 +11,7 @@ Vue.config.productionTip = false
 Vue.use(require('vue-cookies'));
 Vue.use(Toasted);
 
-axios.defaults.baseURL = "http://localhost:3000/";
+axios.defaults.baseURL = "https://wumbaloo.alwaysdata.net/";
 axios.defaults.headers = {
   'Content-Type': 'application/json;charset=utf-8',
 };
