@@ -219,8 +219,9 @@
                 organize = true;
               }
             }
-            if (!organize)
+            if (!organize) {
               this.updateScore(acti[i]['type_title'], acti[i]['events'][j]['user_status'], 0);
+            }
           }
         }
         this.loading = false;

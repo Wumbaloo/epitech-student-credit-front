@@ -70,7 +70,8 @@ let roadblocks = [
           {codemodule: "B-DEV-510", codeinstance: "5-1", projects: ["AppDev - AREA"]},
           {codemodule: "B-FUN-500", codeinstance: "5-1", projects: ["Functional - evalExpr"]},
           {codemodule: "B-FUN-501", codeinstance: "5-1", projects: ["Functional - HAL"]},
-          {codemodule: "B-FUN-510", codeinstance: "5-1", projects: ["Functional - KOAK"]}
+          {codemodule: "B-FUN-510", codeinstance: "5-1", projects: ["Functional - KOAK"]},
+          {codemodule: "B-YEP-500", codeinstance: "5-1", projects: ["Year-End Project"]}
         ]
       }
     ]
@@ -109,12 +110,12 @@ let roadblocks = [
         ]
       },
       { // Tek 3
-        needed: 1,
+        needed: 2,
         modules: [
           {codemodule: "B-AIA-500", codeinstance: "5-1", projects: ["Gomoku"]},
           {codemodule: "B-MAT-500", codeinstance: "5-1", projects: ["301dannon", "302separation", "303make", "304pacman", "305construction", "306radiator", "307multigrains", "308reedpipes", "309pollution"]},
           {codemodule: "B-SEC-500", codeinstance: "5-1", projects: ["Call For Papers", "CAESAR"]},
-          {codemodule: "B-DOP-500", codeinstance: "5-1", projects: ["Docker Containerization", "Automation", "Orchestrator"]}
+          {codemodule: "B-DOP-500", codeinstance: "5-1", projects: ["Popeye", "my_marvin", "Bernstein"]}
         ]
       }
     ]
@@ -129,7 +130,7 @@ let roadblocks = [
       { // Tek 1
         needed: 4,
         modules: [
-          {codemodule: "B-INN-200", codeinstance: "2-1", hub: true, projects: ["Your project"]},
+          {codemodule: "B-INN-200", codeinstance: "2-1", hub: true, projects: ["Experiences / Workshop / Talk / Meetup / Hackathon / Projet Hub"]},
           {codemodule: "G-JAM-001", codeinstance: "0-1", projects: ["Epitech JAM"]},
           {codemodule: "G-JAM-001", codeinstance: "0-2", projects: ["Epitech JAM"]},
           {codemodule: "G-JAM-001", codeinstance: "0-3", projects: ["Epitech JAM"]},
@@ -143,7 +144,7 @@ let roadblocks = [
       { // Tek 2
         needed: 4,
         modules: [
-          {codemodule: "B-INN-400", hub: true, projects: ["Your project"]},
+          {codemodule: "B-INN-400", hub: true, projects: ["Experiences / Workshop / Talk / Meetup / Hackathon / Projet Hub"]},
           {codemodule: "G-JAM-001", codeinstance: "0-1", projects: ["Epitech JAM"]},
           {codemodule: "G-JAM-001", codeinstance: "0-2", projects: ["Epitech JAM"]},
           {codemodule: "G-JAM-001", codeinstance: "0-3", projects: ["Epitech JAM"]},
@@ -157,7 +158,7 @@ let roadblocks = [
       { // Tek 3
         needed: 13,
         modules: [
-          {codemodule: "B-INN-500", codeinstance: "5-1", hub: true, projects: ["Your project"]},
+          {codemodule: "B-INN-500", codeinstance: "5-1", hub: true, projects: ["Experiences / Workshop / Talk / Meetup / Hackathon / Projet Hub"]},
           {codemodule: "B-EIP-500", codeinstance: "FR-5-1", projects: ["Validation EIP"]},
           {codemodule: "B-MOO-500", codeinstance: "5-1", projects: ["Piscine Moonshot"]},
           {codemodule: "B-MOO-501", codeinstance: "5-1", projects: ["Pitch Deck & Design Thinking"]},
@@ -190,7 +191,7 @@ let roadblocks = [
           {codemodule: "B-FRE-200", projects: ["\"Le mode d'emploi : prendre le lecteur par la main\"", "\"Faire préciser\"", "\"La lettre de vente : informer, argumenter, valoriser\""]},
           {codemodule: "B-PCP-000", pcp: true},
           {codemodule: "G-EPI-004"}, {codemodule: "G-EPI-010"},
-          {codemodule: "G-FRE-010"}
+          {codemodule: "G-FRE-010", codeinstance: "FR-0-1"}
         ]
       },
       { // Tek 2
@@ -209,7 +210,7 @@ let roadblocks = [
           {codemodule: "B-FRE-501", projects: ["Avocat du diable", "3 emails", "Mémo professionnel", "Informer : Le magazine du geek"]},
           {codemodule: "B-ANG-001", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
           {codemodule: "B-PCP-000", pcp: true},
-          {codemodule: "G-FRE-010"},
+          {codemodule: "G-FRE-010", codeinstance: "FR-0-1"},
           {codemodule: "G-EPI-010"}, {codemodule: "G-EPI-004"}
         ]
       }
@@ -225,8 +226,8 @@ let roadblocks = [
       { // Tek 1
         needed: 0,
         modules: [
-          {codemodule: "B-CPE-130", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "B-CPE-210", projects: ["Mail professionnel", "RUSH - Les Seigneurs des mots", "Lettre argumentée"]}
+          // {codemodule: "B-CPE-130", projects: ["Solo Stumper 1", "Solo Stumper 2", "Solo Stumper 3", "Solo Stumper 4", "Solo Stumper 5", "Solo Stumper 6 (for bootcamp students only)"]},
+          {codemodule: "B-CPE-210", projects: ["Solo Stumper 1", "Solo Stumper 2", "Solo Stumper 3", "Solo Stumper 4", "Solo Stumper 5", "Solo Stumper 6", "Stumper 1", "Stumper 2", "Stumper 3", "Stumper 4", "Stumper 5", "Stumper 6", "Stumper 7"]}
         ]
       },
       { // Tek 2
@@ -235,13 +236,8 @@ let roadblocks = [
         ]
       },
       { // Tek 3
-        needed: 24,
+        needed: 20,
         modules: [
-          {codemodule: "B-FRE-100", projects: ["Mail professionnel", "RUSH - Les Seigneurs des mots", "Lettre argumentée"]},
-          {codemodule: "B-FRE-200", projects: ["\"Le mode d'emploi : prendre le lecteur par la main\"", "\"Faire préciser\"", "\"La lettre de vente : informer, argumenter, valoriser\""]},
-          {codemodule: "B-FRE-300"},
-          {codemodule: "B-FRE-400", projects: ["Mission délicate : recadrer un collègue", "Diaporama pour décrocher 1 million de dollars", "Rédiger un bilan d'expérience"]},
-          {codemodule: "B-FRE-501", projects: ["Avocat du diable", "3 emails", "Mémo professionnel", "Informer : Le magazine du geek"]},
           {codemodule: "B-PRO-600", projects: ["Internship"]},
         ]
       }

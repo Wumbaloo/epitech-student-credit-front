@@ -228,7 +228,7 @@
                   newYearBlock.push(res);
                   this.$forceUpdate();
                 }
-              })
+              });
             continue;
           }
           for (let x = 0; x < modules.length; x++) {
@@ -242,10 +242,10 @@
         this.updateBlockColor(roadblock);
         roadblock.details[this.student['studentyear'] - 1] = newYearBlock;
       },
-      setupInformations: function () {
-        this.isLoading = false;
+      setupInformations: async function () {
         for (let i = 0; i < this.validationBlocks.length; i++)
-          this.updateRoadblockInfo(this.validationBlocks[i]);
+          await this.updateRoadblockInfo(this.validationBlocks[i]);
+        this.isLoading = false;
       }
     },
     created() {

@@ -47,6 +47,20 @@ Vue.use(VueRouter)
         }
       ]
     }
+  },
+  {
+    path: '/list',
+    name: 'list',
+    component: () => import(/* webpackChunkName: "calculator" */ '../views/List.vue'),
+    meta: {
+      title: 'Liste des modules',
+      metaTags: [
+        {
+          name: 'description',
+          content: 'You can do maths with your modules here.'
+        }
+      ]
+    }
   }
 ]
 
