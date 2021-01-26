@@ -140,13 +140,13 @@
           })
           .then((response) => {
             if (response.data.error) {
-              this.$toasted.show(response.data.message, {
-                theme: "bubble",
-                position: "bottom-center",
-                duration: 5000
-              });
-              this.$router.push({name: 'home'}).catch(() => {
-              });
+              // this.$toasted.show("Une erreur est survenue. Veuillez réessayez.", {
+              //   theme: "bubble",
+              //   position: "bottom-center",
+              //   duration: 5000
+              // });
+              // this.$router.push({name: 'home'}).catch(() => {
+              // });
               return;
             }
             this.module = response.data;

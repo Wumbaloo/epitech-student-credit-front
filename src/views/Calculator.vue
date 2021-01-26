@@ -1,23 +1,33 @@
 <template>
   <v-container class="fill-height">
     <v-row justify="center" align="center" style="flex-direction: column">
-      <v-col cols="12" md="12" lg="6" class="text-center">
+      <v-col cols="12" md="12" lg="6" class="text-center d-flex flex-column align-center" v-if="!isNotBachelor">
         <h1 class="text-h3">Crédits possibles avec vos modules :</h1>
         <h2 class="text-h2 py-10 font-weight-bold">{{ credits }}</h2>
+        <v-btn @click="restoreConfig()"
+               class="mb-3"
+               color="primary">
+          Restaurer ma dernière simulation
+        </v-btn>
         <v-btn @click="eraseSimulation()"
                color="red"
                dark>
           Réinitialiser ma simulation
         </v-btn>
       </v-col>
-      <v-row style="width: 100%">
+      <v-row style="width: 100%" v-show="isNotBachelor">
+        <v-col cols="12" class="text-center d-flex flex-column align-center">
+          <h1 class="text-h3">Cette page n'est pas disponible pour votre cursus.</h1>
+        </v-col>
+      </v-row>
+      <v-row style="width: 100%" v-show="!isNotBachelor">
         <v-col cols="12"
                md="6"
                lg="3"
                v-for="(block, i) in validationBlocks"
                :key="i">
           <v-card>
-            <v-card-title class="text-h5" :class="!block.other ? block.textColor : ''">
+            <v-card-title class="text-h5" :class="!block.other ? block.textColor : ''" style="word-break: break-word">
               {{ block.name }}
               <v-spacer></v-spacer>
               ({{ block.credits_obtains }} / {{ block.credits_needed }})
@@ -28,10 +38,14 @@
                      class="my-2"
                      v-for="(module, j) in block.details[student['studentyear'] - 1]"
                      :key="j">
-                <v-col cols="5">
-                  {{ module['codemodule'] }}
+                <v-col cols="7"
+                       @click="openItem(module)"
+                       style="cursor: pointer">
+                  {{ module['title'] }} ({{ module['codemodule'] }})
                 </v-col>
-                <v-col cols="5">
+                <v-col cols="3" class="text-center"
+                       @click="openItem(module)"
+                       style="cursor: pointer">
                   {{ module['credits'] }}
                 </v-col>
                 <v-col cols="2" style="display: flex; justify-content: end">
@@ -75,6 +89,7 @@
     data: () => ({
       credits: 0,
       isLoading: false,
+      isNotBachelor: false,
       student: {},
       validationBlocks: []
     }),
@@ -89,12 +104,15 @@
               array.push(this.validationBlocks[i].details[year][j].codemodule);
           }
         }
-        this.$cookies.set("yearSimulation", JSON.stringify(array), "14d");
+        if (this.$cookies.get('acceptCookies'))
+          this.$cookies.set("yearSimulation", JSON.stringify(array), "14d");
       },
       restoreConfig() {
         let config = this.$cookies.get("yearSimulation");
         let year = parseInt(this.student['studentyear']) - 1;
 
+        if (!this.$cookies.get('acceptCookies'))
+          return;
         if (!config)
           return;
         config = JSON.parse(config);
@@ -120,14 +138,6 @@
           }
         }
       },
-      updateBlockColor(block) {
-        if (block.credits_obtains + block.credits_remains < block.credits_needed)
-          block.textColor = "red--text font-weight-bold";
-        else if (block.credits_obtains >= block.credits_needed)
-          block.textColor = "green--text";
-        else if (block.credits_obtains + block.credits_remains > block.credits_needed)
-          block.textColor = "primary--text font-weight-medium";
-      },
       toggleModule(block, module, restore) {
         if (module.toggle) {
           block.credits_obtains -= module.credits;
@@ -137,17 +147,47 @@
           this.credits += module.credits;
         }
         this.updateBlockColor(block);
-        module.toggle = !module.toggle
+        module.toggle = !module.toggle;
         if (!restore)
           this.saveConfig();
       },
-      getModuleInfo: function (code) {
+      updateBlockColor(block) {
+        if (block.credits_obtains + block.credits_remains < block.credits_needed) {
+          block.textColor = "red--text font-weight-bold";
+          block.warning = true;
+          return;
+        }
+        block.warning = false;
+        if (block.credits_obtains >= block.credits_needed)
+          block.textColor = "green--text";
+        else if (block.credits_obtains + block.credits_remains >= block.credits_needed)
+          block.textColor = "primary--text font-weight-medium";
+      },
+      isModuleObtained: function(module) {
+        if (!module['grade'])
+          return (0);
+        if (module['grade'] !== '-' && module['grade'].toLowerCase().indexOf("echec") === -1)
+          return (2);
+        else if (module['grade'] === '-')
+          return (1);
+        return (0);
+      },
+      getModuleInfo: function (module) {
         let modules = [];
 
         for (let i = 0; i < this.student.modules.length; i++) {
-          if (this.student.modules[i]['codemodule'] === code &&
-            parseInt(this.student.modules[i]['scolaryear']) === parseInt(this.student['scolaryear']))
+          if (this.student.modules[i]['codemodule'] === module['codemodule'] &&
+            parseInt(this.student.modules[i]['scolaryear']) === parseInt(this.student['scolaryear'])) {
+            if (module['codeinstance']) {
+              if (this.getModuleInstance(module) !== this.student.modules[i]['codeinstance']) {
+                continue;
+              }
+            }
+            this.student.modules[i].hub = module.hub;
+            this.student.modules[i].pcp = module.pcp;
+            this.student.modules[i].projects = module.projects;
             modules.push(this.student.modules[i]);
+          }
         }
         return modules;
       },
@@ -185,14 +225,26 @@
                 return;
               resolve(response.data);
             }).catch((err) => {
-            this.$toasted.show(err.message, {
+            this.$toasted.show("Une erreur est survenue. Vérifiez que vous avez acceptés les cookies et réessayez.", {
               theme: "bubble",
               position: "bottom-center",
               duration : 5000
             });
+            this.$router.push({ name: 'home' }).catch(() => {});
           });
         });
         return (promise);
+      },
+      getModuleNote: function (code) {
+        for (let i = this.student['notes'].length - 1; i >= 0; i--) {
+          if (this.student['notes'][i]['codemodule'] === code &&
+            parseInt(this.student['notes'][i]['scolaryear']) === parseInt(this.student['scolaryear'])) {
+            if (code === 'B-ANG-058' && this.student['notes'][i]['title'].indexOf('Self-assessment') !== -1)
+              continue;
+            return (this.student['notes'][i]);
+          }
+        }
+        return null;
       },
       removeItemAll(array, module) {
         let i = 0;
@@ -208,44 +260,65 @@
         }
         return (array);
       },
+      isRegistered: function (module) {
+        for (let i = 0; i < this.student.modules.length; i++) {
+          if (this.student.modules[i]['codemodule'] === module['codemodule'] &&
+            parseInt(this.student.modules[i]['scolaryear']) === parseInt(this.student['scolaryear']) &&
+            this.student.modules[i]['codeinstance'] === module['codeinstance']) {
+            module['grade'] = this.student.modules[i]['grade'];
+            module['credits'] = this.student.modules[i]['credits'];
+            return true;
+          }
+        }
+        return false;
+      },
       updateRoadblockInfo: function (roadblock) {
-        if (!roadblock || !roadblock.is_roadblock)
-          return;
-        let yearBlock = roadblock.details[this.student['studentyear'] - 1];
-        if (!yearBlock.modules)
-          return;
-        roadblock.credits_needed = yearBlock.needed;
-        let newYearBlock = [];
-        for (let i = 0; i < yearBlock.modules.length; i++) {
-          let modules = this.getModuleInfo(yearBlock.modules[i]['codemodule']);
-          if (!modules || modules.length === 0) {
+        return new Promise((resolve, reject) => {
+          if (!roadblock || !roadblock.is_roadblock)
+            return;
+          let yearBlock = roadblock.details[this.student['studentyear'] - 1];
+          if (!yearBlock.modules)
+            return;
+          roadblock.credits_needed = yearBlock.needed;
+          let newYearBlock = [];
+          for (let i = 0; i < yearBlock.modules.length; i++) {
             let instance = this.getModuleInstance(yearBlock.modules[i]);
-            this.getNotRegisteredModuleInfo(yearBlock.modules[i]['codemodule'], instance)
-              .then((res) => {
+            this.getNotRegisteredModuleInfo(yearBlock.modules[i]['codemodule'], instance).then(
+              (res) => {
                 res.registered = false;
+                this.$forceUpdate();
                 if (!res.error &&
                   parseInt(res['scolaryear']) === parseInt(this.student['scolaryear'])) {
                   newYearBlock.push(res);
-                  this.$forceUpdate();
+                  this.isLoading = false;
                 }
-              });
-            continue;
+              }
+            )
           }
-          for (let x = 0; x < modules.length; x++) {
-            if (parseInt(modules[x]['scolaryear']) !== parseInt(this.student['scolaryear']))
-              continue;
-            modules[x].registered = true;
-            yearBlock.modules = this.removeItemAll(yearBlock.modules, modules[x]);
-            newYearBlock.push(modules[x]);
-          }
-        }
-        this.updateBlockColor(roadblock);
-        roadblock.details[this.student['studentyear'] - 1] = newYearBlock;
+          this.updateBlockColor(roadblock);
+          this.$forceUpdate();
+          roadblock.details[this.student['studentyear'] - 1] = newYearBlock;
+          resolve();
+        });
       },
       setupInformations: async function () {
+        if (this.student['semester_code'][0] === 'T') {
+          this.isNotBachelor = true;
+          this.isLoading = false;
+          return;
+        }
         for (let i = 0; i < this.validationBlocks.length; i++)
           await this.updateRoadblockInfo(this.validationBlocks[i]);
-        this.isLoading = false;
+      },
+      openItem(item) {
+        if (item.hub || item.pcp) {
+          this.toggleDialog(item);
+          return;
+        }
+        if (!item['scolaryear'] || !item['codemodule'] || !item['codeinstance'])
+          return;
+        let url = "https://intra.epitech.eu/module/" + item['scolaryear'] + "/" + item['codemodule'] + "/" + item['codeinstance'];
+        window.open(url);
       }
     },
     created() {
@@ -285,7 +358,6 @@
           }
           this.student = response.data;
           this.setupInformations();
-          this.restoreConfig();
         }).catch((err) => {
         this.$toasted.show(err.message, {
           theme: "bubble",

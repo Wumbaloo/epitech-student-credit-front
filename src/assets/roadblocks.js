@@ -86,9 +86,9 @@ let roadblocks = [
       { // Tek 1
         needed: 8,
         modules: [
-          {codemodule: "B-MUL-100", codeinstance: "1-1", projects: ["my_radar", "my_screensaver", "my_hunter"]},
+          {codemodule: "B-MUL-100", codeinstance: "1-1", projects: ["MyRadar", "MyScreenSaver", "MyHunter", "MyRunner"]},
           {codemodule: "B-MAT-100", codeinstance: "1-1", projects: ["101pong", "102architect", "103cipher", "104intersection", "105torus"]},
-          {codemodule: "B-MUL-200", codeinstance: "2-1", projects: ["my_defender", "my_world", "my_rpg"]},
+          {codemodule: "B-MUL-200", codeinstance: "2-1", projects: ["MyDefender", "MyWorld", "MyRPG"]},
           {codemodule: "B-AIA-200", codeinstance: "2-1", projects: ["Need4Stek"]},
           {codemodule: "B-SAD-200", codeinstance: "2-1", projects: ["my_web"]},
           {codemodule: "B-WEB-200", codeinstance: "2-1", projects: ["EpyTodo"]},
@@ -102,11 +102,11 @@ let roadblocks = [
           {codemodule: "B-CNA-410", codeinstance: "4-1", projects: ["Groundhog"]},
           {codemodule: "B-MAT-400", codeinstance: "4-1", projects: ["201yams", "202unsold", "203hotline", "204ducks", "205IQ", "206neutrinos", "207demography", "208dowels", "209poll"]},
           {codemodule: "B-NSA-400", codeinstance: "4-1", projects: ["SNA"]},
-          {codemodule: "B-SHL-300", codeinstance: "4-1", projects: ["BDSH"]},
           {codemodule: "B-PSU-402", codeinstance: "4-1", projects: ["ftrace", "strace"]},
           {codemodule: "B-ASM-400", codeinstance: "4-1", projects: ["MiniLibC"]},
           {codemodule: "B-FUN-400", codeinstance: "4-1", projects: ["Wolfram", "Image Compressor"]},
-          {codemodule: "B-SEC-400", codeinstance: "4-1", projects: ["Shodan"]}
+          {codemodule: "B-SEC-400", codeinstance: "4-1", projects: ["Shodan"]},
+          {codemodule: "B-DOP-400", codeinstance: "4-1", projects: ["Popeye", "my_marvin"]}
         ]
       },
       { // Tek 3
@@ -148,9 +148,7 @@ let roadblocks = [
           {codemodule: "G-JAM-001", codeinstance: "0-1", projects: ["Epitech JAM"]},
           {codemodule: "G-JAM-001", codeinstance: "0-2", projects: ["Epitech JAM"]},
           {codemodule: "G-JAM-001", codeinstance: "0-3", projects: ["Epitech JAM"]},
-          {codemodule: "G-CUS-001", codeinstance: "0-1", projects: ["Video presentation"]}, {codemodule: "G-CUS-002", codeinstance: "0-1", projects: ["Video presentation"]},
-          {codemodule: "G-CUS-003", codeinstance: "0-1", projects: ["Video presentation"]}, {codemodule: "G-CUS-004", codeinstance: "0-1", projects: ["Video presentation"]},
-          {codemodule: "G-CUS-005", codeinstance: "0-1", projects: ["Video presentation"]}, {codemodule: "G-CUS-006", codeinstance: "0-1", projects: ["Video presentation"]},
+          {codemodule: "G-CUS-006", codeinstance: "0-1", projects: ["Video presentation"]},
           {codemodule: "G-CUS-007", codeinstance: "0-1", projects: ["Video presentation"]}, {codemodule: "G-CUS-008", codeinstance: "0-1", projects: ["Video presentation"]},
           {codemodule: "G-CUS-009", codeinstance: "0-1", projects: ["Video presentation"]},
         ]
@@ -186,11 +184,15 @@ let roadblocks = [
       { // Tek 1
         needed: 3,
         modules: [
-          {codemodule: "B-ANG-001", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-1", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-3", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-4", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
           {codemodule: "B-FRE-100", projects: ["Mail professionnel", "RUSH - Les Seigneurs des mots", "Lettre argumentée"]},
           {codemodule: "B-FRE-200", projects: ["\"Le mode d'emploi : prendre le lecteur par la main\"", "\"Faire préciser\"", "\"La lettre de vente : informer, argumenter, valoriser\""]},
           {codemodule: "B-PCP-000", pcp: true},
-          {codemodule: "G-EPI-004"}, {codemodule: "G-EPI-010"},
+          {codemodule: "G-EPI-004"},
           {codemodule: "G-FRE-010", codeinstance: "FR-0-1"}
         ]
       },
@@ -200,18 +202,23 @@ let roadblocks = [
           {codemodule: "B-FRE-400", projects: ["Mission délicate : recadrer un collègue", "Diaporama pour décrocher 1 million de dollars", "Rédiger un bilan d'expérience"]},
           {codemodule: "B-PCP-000", pcp: true},
           {codemodule: "G-EPI-004"},
-          {codemodule: "B-ANG-001", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "G-EPI-010"}
+          {codemodule: "B-ANG-001", codeinstance: "0-1", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-3", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-4", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]}
         ]
       },
       { // Tek 3
         needed: 3,
         modules: [
           {codemodule: "B-FRE-501", projects: ["Avocat du diable", "3 emails", "Mémo professionnel", "Informer : Le magazine du geek"]},
-          {codemodule: "B-ANG-001", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-1", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-3", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
           {codemodule: "B-PCP-000", pcp: true},
           {codemodule: "G-FRE-010", codeinstance: "FR-0-1"},
-          {codemodule: "G-EPI-010"}, {codemodule: "G-EPI-004"}
+          {codemodule: "G-EPI-004"}
         ]
       }
     ]
@@ -227,18 +234,21 @@ let roadblocks = [
         needed: 0,
         modules: [
           // {codemodule: "B-CPE-130", projects: ["Solo Stumper 1", "Solo Stumper 2", "Solo Stumper 3", "Solo Stumper 4", "Solo Stumper 5", "Solo Stumper 6 (for bootcamp students only)"]},
-          {codemodule: "B-CPE-210", projects: ["Solo Stumper 1", "Solo Stumper 2", "Solo Stumper 3", "Solo Stumper 4", "Solo Stumper 5", "Solo Stumper 6", "Stumper 1", "Stumper 2", "Stumper 3", "Stumper 4", "Stumper 5", "Stumper 6", "Stumper 7"]}
+          {codemodule: "B-CPE-210", projects: ["Solo Stumper 1", "Solo Stumper 2", "Solo Stumper 3", "Solo Stumper 4", "Solo Stumper 5", "Solo Stumper 6", "Stumper 1", "Stumper 2", "Stumper 3", "Stumper 4", "Stumper 5", "Stumper 6", "Stumper 7"]},
+          {codemodule: "G-EPI-010"}
         ]
       },
       { // Tek 2
         needed: 0,
         modules: [
+          {codemodule: "G-EPI-010"}
         ]
       },
       { // Tek 3
         needed: 20,
         modules: [
           {codemodule: "B-PRO-600", projects: ["Internship"]},
+          {codemodule: "G-EPI-010"}
         ]
       }
     ]
@@ -258,7 +268,7 @@ let roadblocks = [
         ]
       },
       { // Tek 2
-        needed: 0,
+        needed: 20,
         modules: [
           {codemodule: "B-EPI-300", projects: ["Project Week"]},
           {codemodule: "B-PRO-300", projects: ["Internship"]}

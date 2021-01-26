@@ -3,9 +3,9 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import About from '../views/About.vue'
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
-  const routes = [
+const routes = [
   {
     path: '/',
     name: 'home',
@@ -57,16 +57,30 @@ Vue.use(VueRouter)
       metaTags: [
         {
           name: 'description',
-          content: 'You can do maths with your modules here.'
+          content: 'You can show modules.'
+        }
+      ]
+    }
+  },
+  {
+    path: '/planning',
+    name: 'planning',
+    component: () => import(/* webpackChunkName: "calculator" */ '../views/Planning.vue'),
+    meta: {
+      title: 'Récupérateur de planning',
+      metaTags: [
+        {
+          name: 'description',
+          content: 'You can download the planning here.'
         }
       ]
     }
   }
-]
+];
 
 const router = new VueRouter({
   routes,
-  mode: 'history'
+  mode: 'history',
 });
 
 router.beforeEach((to, from, next) => {

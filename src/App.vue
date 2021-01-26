@@ -19,20 +19,19 @@
       <v-spacer></v-spacer>
 
       <v-btn
-          v-if="$route.name !== 'calculator'"
-          v-show="logged"
+          v-show="$route.name === 'about'"
           text
           large
-          to="calculator"
+          @click="goToCalculator"
       >
         <span class="subtitle-2 mr-2 hidden-sm-and-down">Simulateur</span>
         <v-icon>mdi-math-compass</v-icon>
       </v-btn>
       <v-btn
-          v-else-if="$route.name === 'calculator'"
+          v-show="$route.name === 'calculator'"
           text
           large
-          to="about"
+          @click="goToAbout"
       >
         <span class="subtitle-2 mr-2 hidden-sm-and-down">Profil étudiant</span>
         <v-icon>mdi-account</v-icon>
@@ -41,7 +40,7 @@
         text
         large
         @click="logout"
-        v-if="logged"
+        v-show="$route.name !== 'home'"
       >
         <span class="subtitle-2 mr-2 hidden-sm-and-down">Déconnexion</span>
         <v-icon>mdi-power-standby</v-icon>
@@ -52,6 +51,25 @@
       <keep-alive>
         <router-view/>
       </keep-alive>
+      <v-bottom-sheet
+          v-model="toggleCookies"
+          class="cookies-popup"
+          persistent>
+        <v-sheet class="text-center">
+          <v-btn
+              class="mt-6"
+              dark
+              color="green"
+              @click="acceptCookies"
+          >Accepter</v-btn>
+          <v-row class="pt-3 pb-6" justify="center" align="center" no-gutters>
+            <v-col cols="12" lg="8">
+              En cliquant sur <i>"Accepter"</i>, vous agréez à l’utilisation de cookies en vue de permettre le <b>stockage de votre autologin dans votre navigateur</b> pour vos prochaines authentifications.
+              <br>En aucun cas <b>Epi-Planner</b> ne peut accéder à vos autologin.
+            </v-col>
+          </v-row>
+        </v-sheet>
+      </v-bottom-sheet>
     </v-main>
   </v-app>
 </template>
@@ -61,16 +79,19 @@ export default {
   name: 'App',
   data: () => ({
     logged: false,
+    toggleCookies: false,
   }),
   created() {
     this.logged = (this.$cookies.get("autologin") || this.getAutologin);
-    if (this.$route.name === "home" && this.logged)
+    if (this.$route.name === "home" && this.logged && this.$cookies.get("acceptCookies"))
       this.$router.push({ name: 'about' }).catch(() => {});
+    this.toggleCookies = !this.$cookies.get("acceptCookies");
   },
   updated() {
     this.logged = (this.$cookies.get("autologin") || this.getAutologin);
-    if (this.$route.name !== "home" && !this.logged)
-      this.$router.push({ name: 'home' }).catch(() => {});
+    if (this.$route.name === "home" && this.logged && this.$cookies.get("acceptCookies"))
+      this.$router.push({ name: 'about' }).catch(() => {});
+    this.toggleCookies = !this.$cookies.get("acceptCookies");
   },
   methods: {
     goToHomepage() {
@@ -79,11 +100,29 @@ export default {
       else if (this.logged)
         this.$router.push({ name: 'about' }).catch(() => {});
     },
+    goToCalculator() {
+      this.$router.push({ name: 'calculator'}).catch(() => {});
+      this.toggleCookies = !this.$cookies.get("acceptCookies");
+    },
+    goToAbout() {
+      this.$router.push({ name: 'about'}).catch(() => {});
+      this.toggleCookies = !this.$cookies.get("acceptCookies");
+    },
     logout() {
       this.$cookies.set("user", "", "1m");
       this.$cookies.set("autologin", "", "1m");
       this.$router.push({ name: 'home' }).catch(() => {});
+    },
+    acceptCookies() {
+      this.toggleCookies = false;
+      this.$cookies.set("acceptCookies", true, 2147483647);
     }
   }
 };
 </script>
+
+<style scoped>
+  .cookies-popup {
+    position: absolute;
+  }
+</style>

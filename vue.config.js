@@ -5,5 +5,16 @@ module.exports = {
   },
   "transpileDependencies": [
     "vuetify"
-  ]
-}
+  ],
+  configureWebpack: (config) => {
+    config.optimization = {
+      minimize: true,
+      splitChunks: {
+        chunks: 'all',
+        automaticNameDelimiter: '.',
+        name: undefined,
+        cacheGroups: {}
+      }
+    }
+  }
+};

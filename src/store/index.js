@@ -16,7 +16,6 @@ export default new Vuex.Store({
   },
   getters: {
     getAutologin: state => {
-      console.log("Here with " + state.autologin);
       return state.autologin;
     }
   },

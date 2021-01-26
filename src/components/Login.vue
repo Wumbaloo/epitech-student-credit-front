@@ -13,6 +13,8 @@
       <v-text-field
           v-model="loginText"
           :rules="[rules.required, rules.epitechURL]"
+          @keyup.enter="saveAutoLogin"
+          @keyup.13="saveAutoLogin"
           label="Collez votre autologin"
           prepend-icon="mdi-account"
       >
@@ -62,11 +64,12 @@
         const pattern = /(https?:\/\/(.+?\.)?intra.epitech\.eu(\/[A-Za-z0-9\-\._~:\/\?#\[\]@!$&'\(\)\*\+,;\=]*)?)/;
         if (!this.loginText || !pattern.test(this.loginText))
           return;
-        this.$cookies.set("autologin", this.loginText, "14d");
+        if (this.$cookies.get('acceptCookies'))
+          this.$cookies.set("autologin", this.loginText, 2147483647);
         this.$store.commit("setAutologin", this.loginText);
         this.$emit('toggleHelp', true);
         this.loginText = "";
-        this.$router.push('about');
+        this.$router.push({ name: 'about' }).catch(() => {});
       }
     }
   }

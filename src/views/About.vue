@@ -79,6 +79,8 @@
               accordion
               multiple
               focusable>
+                <v-btn color="primary" @click="hubDialog = !hubDialog" class="mb-6" style="cursor: pointer">Voir les détails du module HUB</v-btn>
+                <v-btn color="primary" @click="devPcpDialog = !devPcpDialog" class="ml-6 mb-6" style="cursor: pointer">Voir les détails du module PCP</v-btn>
               <v-expansion-panel readonly disabled>
                 <v-expansion-panel-header class="grey lighten-3 font-weight-medium">
                   <v-row no-gutters>
@@ -200,7 +202,7 @@
                       </tr>
                     </template>
                     <template v-slot:no-data>
-                      Pas de module trouvé pour ce roadblock
+                      Aucun module pour ce roadblock
                     </template>
                   </v-data-table>
                 </v-expansion-panel-content>
@@ -208,6 +210,7 @@
             </v-expansion-panels>
             <v-expansion-panels
                   class="my-3"
+                  v-if="barrages[8]"
                   accordion
                   multiple
                   focusable>
@@ -317,7 +320,7 @@
                         </tr>
                       </template>
                       <template v-slot:no-data>
-                        Pas de module trouvé
+                        Aucun module pour ce roadblock
                       </template>
                     </v-data-table>
                   </v-expansion-panel-content>
@@ -403,9 +406,12 @@
         if (block.credits_obtains + block.credits_remains < block.credits_needed) {
           block.textColor = "red--text font-weight-bold";
           block.warning = true;
-        } else if (block.credits_obtains >= block.credits_needed)
+          return;
+        }
+        block.warning = false;
+        if (block.credits_obtains >= block.credits_needed)
           block.textColor = "green--text";
-        else if (block.credits_obtains + block.credits_remains > block.credits_needed)
+        else if (block.credits_obtains + block.credits_remains >= block.credits_needed)
           block.textColor = "primary--text font-weight-medium";
       },
       isModuleObtained: function(module) {
@@ -423,6 +429,11 @@
         for (let i = 0; i < this.student.modules.length; i++) {
           if (this.student.modules[i]['codemodule'] === module['codemodule'] &&
             parseInt(this.student.modules[i]['scolaryear']) === parseInt(this.student['scolaryear'])) {
+            if (module['codeinstance']) {
+              if (this.getModuleInstance(module) !== this.student.modules[i]['codeinstance']) {
+                continue;
+              }
+            }
             this.student.modules[i].hub = module.hub;
             this.student.modules[i].pcp = module.pcp;
             this.student.modules[i].projects = module.projects;
@@ -465,11 +476,12 @@
                 return;
               resolve(response.data);
             }).catch((err) => {
-            this.$toasted.show(err.message, {
-              theme: "bubble",
-              position: "bottom-center",
-              duration : 5000
-            });
+              this.$toasted.show("Une erreur est survenue. Vérifiez que vous avez acceptés les cookies et réessayez.", {
+                theme: "bubble",
+                position: "bottom-center",
+                duration : 5000
+              });
+              this.$router.push({ name: 'home' }).catch(() => {});
           });
         });
         return (promise);
@@ -478,6 +490,8 @@
         for (let i = this.student['notes'].length - 1; i >= 0; i--) {
           if (this.student['notes'][i]['codemodule'] === code &&
             parseInt(this.student['notes'][i]['scolaryear']) === parseInt(this.student['scolaryear'])) {
+            if (code === 'B-ANG-058' && this.student['notes'][i]['title'].indexOf('Self-assessment') !== -1)
+              continue;
             return (this.student['notes'][i]);
           }
         }
@@ -497,8 +511,20 @@
         }
         return (array);
       },
+      isRegistered: function (module) {
+        for (let i = 0; i < this.student.modules.length; i++) {
+          if (this.student.modules[i]['codemodule'] === module['codemodule'] &&
+            parseInt(this.student.modules[i]['scolaryear']) === parseInt(this.student['scolaryear']) &&
+            this.student.modules[i]['codeinstance'] === module['codeinstance']) {
+            module['grade'] = this.student.modules[i]['grade'];
+            module['credits'] = this.student.modules[i]['credits'];
+            return true;
+          }
+        }
+        return false;
+      },
       updateRoadblockInfo: function (roadblock) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
           if (!roadblock || !roadblock.is_roadblock)
             return;
           let yearBlock = roadblock.details[this.student['studentyear'] - 1];
@@ -507,37 +533,31 @@
           roadblock.credits_needed = yearBlock.needed;
           let newYearBlock = [];
           for (let i = 0; i < yearBlock.modules.length; i++) {
-            let modules = this.getModuleInfo(yearBlock.modules[i]);
-            if (!modules || modules.length === 0) {
-              let instance = this.getModuleInstance(yearBlock.modules[i]);
-              this.getNotRegisteredModuleInfo(yearBlock.modules[i]['codemodule'], instance)
-                .then((res) => {
-                  res.registered = false;
+            let instance = this.getModuleInstance(yearBlock.modules[i]);
+            this.getNotRegisteredModuleInfo(yearBlock.modules[i]['codemodule'], instance).then(
+              (res) => {
+                if (res['allow_register'] === 1 || !res['allow_register']) {
+                  res.registered = this.isRegistered(res);
                   res.hub = yearBlock.modules[i].hub;
                   res.pcp = yearBlock.modules[i].pcp;
                   res.projects = yearBlock.modules[i].projects;
+                  if (res.registered) {
+                      if (this.isModuleObtained(res) === 2)
+                        roadblock.credits_obtains += res['credits'];
+                      else if (this.isModuleObtained(res) === 1)
+                        roadblock.credits_remains += res['credits'];
+                  }
                   if (!res.error &&
                     parseInt(res['scolaryear']) === parseInt(this.student['scolaryear'])) {
                     newYearBlock.push(res);
-                    this.$forceUpdate();
                   }
-                });
-            } else {
-              for (let x = 0; x < modules.length; x++) {
-                if (parseInt(modules[x]['scolaryear']) !== parseInt(this.student['scolaryear']))
-                  continue;
-                modules[x].registered = true;
-                yearBlock.modules = this.removeItemAll(yearBlock.modules, modules[x]);
-                newYearBlock.push(modules[x]);
-                if (this.isModuleObtained(modules[x]) === 2)
-                  roadblock.credits_obtains += modules[x]['credits'];
-                else if (this.isModuleObtained(modules[x]) === 1)
-                  roadblock.credits_remains += modules[x]['credits'];
+                }
+                this.updateBlockColor(roadblock);
               }
-            }
+            )
           }
-          console.log("Finished");
           this.updateBlockColor(roadblock);
+          this.$forceUpdate();
           roadblock.details[this.student['studentyear'] - 1] = newYearBlock;
           resolve();
         });
@@ -556,8 +576,33 @@
           this.barrages[1].credits_obtains = tepitech['final_note'];
         this.updateBlockColor(this.barrages[1]);
         this.updateBlockColor(this.barrages[0]);
-        for (let i = 3; i < this.barrages.length; i++)
-          await this.updateRoadblockInfo(this.barrages[i]);
+        if (this.student['semester_code'][0] !== 'T') {
+          for (let i = 3; i < this.barrages.length; i++)
+            await this.updateRoadblockInfo(this.barrages[i]);
+        } else {
+          this.isNotBachelor = true;
+          this.barrages = this.barrages.slice(0, 2);
+          this.barrages.push(
+            {
+              name: "Extra Units",
+              is_roadblock: true,
+              credits_obtains: 0,
+              credits_needed: 0,
+              credits_remains: 0,
+              details: [
+                {},
+                {},
+                {needed: 0, modules: [
+                    {codemodule: "B-INN-500", codeinstance: "5-1", hub: true, projects: ["Experiences / Workshop / Talk / Meetup / Hackathon / Projet Hub"]},
+                    {codemodule: "B-PCP-000", pcp: true}
+                  ]}
+              ]
+            }
+          );
+          this.barrages.push({});
+          await this.updateRoadblockInfo(this.barrages[2]);
+          this.barrages[2].textColor = "none";
+        }
         setTimeout(() => {
           this.isLoading = false;
           this.detailLoading = false;
@@ -603,18 +648,21 @@
         })
         .then((response) => {
           if (response.data.error) {
-            this.$toasted.show(response.data.message, {
+            this.$toasted.show("Une erreur est survenue. Vérifiez que vous avez acceptés les cookies et réessayez", {
               theme: "bubble",
               position: "bottom-center",
               duration : 5000
             });
+            this.isLoading = false;
+            this.$cookies.set("autologin", "", "1s");
+            this.$store.commit("setAutologin", false);
             this.$router.push({ name: 'home' }).catch(() => {});
             return;
           }
           this.student = response.data;
           this.setupInformations();
         }).catch((err) => {
-          this.$toasted.show(err.message, {
+          this.$toasted.show("Une erreur est survenue. Vérifiez que vous avez acceptés les cookies et réessayez.", {
             theme: "bubble",
             position: "bottom-center",
             duration : 5000
@@ -632,6 +680,7 @@
       hubDialog: false,
       devPcpDialog: false,
       detailLoading: true,
+      isNotBachelor: false,
       student: {
       },
       detailsHeader: [

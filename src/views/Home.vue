@@ -125,6 +125,20 @@ export default {
     showHelp: false,
     helpState: 1
   }),
+  created() {
+    let autologin = this.$cookies.get("autologin") || this.getAutologin;
+
+    this.$store.commit("setAutologin", autologin);
+    if (autologin && this.$cookies.get("acceptCookies"))
+      this.$router.push('about');
+  },
+  // updated() {
+  //   let autologin = this.$cookies.get("autologin") || this.getAutologin;
+  //
+  //   this.$store.commit("setAutologin", autologin);
+  //   if (autologin && this.$cookies.get("acceptCookies"))
+  //     this.$router.push('about');
+  // },
   methods: {
     toggleHelp(forceClose) {
       if (forceClose)

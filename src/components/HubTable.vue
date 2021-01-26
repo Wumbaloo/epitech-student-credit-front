@@ -22,7 +22,7 @@
           >
           <v-row no-gutters justify="space-between">
             <div>
-              Responsables du module HUB :
+              Responsable{{ module['resp'] && module['resp'].length > 1 ? 's' : ''}} du module HUB :
               <ul>
                 <li v-for="resp in module['resp']" :key="resp.title">
                   {{ resp.title }}
@@ -153,8 +153,8 @@
           title: "workshop",
           possible_names: ["Workshop"],
           points: [
-            {present: 3, missing: 3}, // Participation
-            {present: 10, missing: 15} // Organization
+            {present: 2, missing: 2}, // Participation
+            {present: 7, missing: 10} // Organization
           ]
         },
         {
@@ -243,11 +243,11 @@
           })
           .then((response) => {
             if (response.data.error) {
-              this.$toasted.show(response.data.message, {
-                theme: "bubble",
-                position: "bottom-center",
-                duration: 5000
-              });
+              // this.$toasted.show(response.data.message, {
+              //   theme: "bubble",
+              //   position: "bottom-center",
+              //   duration: 5000
+              // });
               this.$router.push({name: 'home'}).catch(() => {
               });
               return;
