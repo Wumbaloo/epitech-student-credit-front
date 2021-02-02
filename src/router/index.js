@@ -75,6 +75,20 @@ const routes = [
         }
       ]
     }
+  },
+  {
+    path: '/redoublants',
+    name: 'redoublants',
+    component: () => import(/* webpackChunkName: "calculator" */ '../views/Redoublants.vue'),
+    meta: {
+      title: 'Remise à niveau des crédits',
+      metaTags: [
+        {
+          name: 'description',
+          content: 'You can see the student\'s credits.'
+        }
+      ]
+    }
   }
 ];
 
