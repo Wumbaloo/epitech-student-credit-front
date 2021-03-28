@@ -1,9 +1,9 @@
 <template>
   <v-container>
     <v-row justify="center" align="center">
-      <v-col cols="12" md="12" lg="8">
+      <v-col cols="12" md="12" lg="10" xl="8">
         <v-row justify="center" align="center" style="flex-direction: column">
-          <v-col cols="12" md="6">
+          <v-col cols="12" md="8" lg="8" xl="6">
             <v-card
               class="mx-auto"
               shaped
@@ -98,18 +98,18 @@
                 <v-expansion-panel-content></v-expansion-panel-content>
               </v-expansion-panel>
               <v-expansion-panel
-                  :readonly="!item.is_roadblock || isLoading || detailLoading"
-                  :class="!item.is_roadblock ? 'hide-icon' : 'show-icon'"
-                  v-for="(item, i) in barrages"
+                  v-for="(item, i) in student['roadblocks']"
+                  v-if="i < student['roadblocks'].length - 1 && item.name.indexOf('Anglais') === -1"
+                  :readonly="item.modules.length === 0 || isLoading || detailLoading"
+                  :class="item.modules.length === 0 ? 'hide-icon' : 'show-icon'"
                   :key="i"
-                  v-if="i !== 1 && i !== barrages.length - 1"
               >
                 <v-expansion-panel-header expand-icon="mdi-menu-down">
                   <v-row no-gutters align="center"
                          :class="item.textColor">
                     <v-col cols="4">
                       <v-row no-gutters justify="space-between" align="center">
-                        <span :class="item.is_roadblock ? 'ml-8' : ''">{{ item.name }}</span>
+                        <span :class="item.modules.length > 0 ? 'ml-8' : ''">{{ item.name }}</span>
                         <v-tooltip bottom v-if="item['warning']">
                           <template v-slot:activator="{ on, attrs }">
                             <v-icon color="red"
@@ -139,63 +139,59 @@
                   <v-data-table
                       disable-sort
                       hide-default-footer
-                      v-if="item.is_roadblock"
                       :headers="detailsHeader"
                       :loading="detailLoading"
                       calculate-widths
-                      item-key="codemodule"
-                      :items.sync="item.details[student['studentyear'] - 1]"
+                      item-key="code"
+                      :items.sync="item['roadblockModules']"
                   >
                     <template v-slot:item="{ item }">
                       <tr @click="openItem(item)" class="cursor-click">
                         <v-tooltip right fixed allow-overflow offset-overflow>
                           <template v-slot:activator="{ on, attrs }">
                             <td v-on="on">{{ item.title }} ({{ item.codemodule }}) <v-icon v-if="item.hub || item.pcp">mdi-chevron-down</v-icon></td>
-                            <td v-on="on" class="d-flex align-center justify-center">
-                              <v-chip
-                                  v-if="item.registered && isModuleObtained(item) === 2"
-                                  color="green"
-                                  small
-                                  text-color="white">
-                                Acquis
-                              </v-chip>
-                              <v-chip
-                                  v-else-if="item.registered && isModuleObtained(item) === 0"
-                                  color="red"
-                                  small
-                                  text-color="white">
-                                Échec
-                              </v-chip>
-                              <v-chip
-                                  v-else-if="item.registered"
-                                  color="primary"
-                                  small
-                                  text-color="white">
-                                En cours
-                              </v-chip>
-                              <v-chip
-                                  v-else
-                                  color="red"
-                                  small
-                                  text-color="white">
-                                Non inscrit
-                              </v-chip>
+                            <td v-on="on">
+                              <div class="d-flex align-center justify-center">
+                                <v-chip
+                                    v-if="item['student_registered'] && isModuleObtained(item) === 2"
+                                    color="green"
+                                    small
+                                    text-color="white">
+                                  Acquis
+                                </v-chip>
+                                <v-chip
+                                    v-else-if="item['student_registered'] && isModuleObtained(item) === 0"
+                                    color="red"
+                                    small
+                                    text-color="white">
+                                  Échec
+                                </v-chip>
+                                <v-chip
+                                    v-else-if="item['student_registered']"
+                                    color="primary"
+                                    small
+                                    text-color="white">
+                                  En cours
+                                </v-chip>
+                                <v-chip
+                                    v-else
+                                    color="red"
+                                    small
+                                    text-color="white">
+                                  Non inscrit
+                                </v-chip>
+                              </div>
                             </td>
                             <td v-on="on" class="text-center">
                               <span>
-                                {{ item['credits'] }}
+                                {{ item['user_credits'] || item['credits'] }}
                               </span>
                             </td>
                           </template>
-                          <span v-show="item.projects"
-                                v-for="project in item.projects"
-                                :key="project">
-                            <span>
-                              {{ project }}
-                            </span>
-                            <br>
+                          <span v-if="item.projects">
+                              {{ item.projects.replaceAll(',', ' / ') }}
                           </span>
-                          <span v-show="!item.projects">
+                          <span v-else>
                             Aucune information sur les projets de ce module.
                           </span>
                         </v-tooltip>
@@ -210,7 +206,7 @@
             </v-expansion-panels>
             <v-expansion-panels
                   class="my-3"
-                  v-if="barrages[8]"
+                  v-if="student['roadblocks'] && student['roadblocks'].length > 1"
                   accordion
                   multiple
                   focusable>
@@ -224,31 +220,19 @@
 <!--                      </v-col>-->
 <!--                    </v-row>-->
                     <v-row no-gutters align="center"
-                           :class="barrages[8].textColor">
+                           :class="student['roadblocks'][student['roadblocks'].length - 1].textColor">
                       <v-col cols="4">
                         <v-row no-gutters justify="space-between" align="center">
-                          <span :class="barrages[8].is_roadblock ? 'ml-8' : ''">{{ barrages[8].name }}</span>
-                          <v-tooltip bottom v-if="barrages[8]['warning']">
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-icon color="red"
-                                      v-on="on"
-                                      v-bind="attrs">mdi-alert</v-icon>
-                            </template>
-                            <span>Ce barrage nécessite votre attention</span>
-                          </v-tooltip>
-                          <v-icon v-else-if="barrages[8]['credits_obtains'] >= barrages[8]['credits_needed']"
-                                  color="green">
-                            mdi-check
-                          </v-icon>
+                          <span class="ml-8">{{ student['roadblocks'][student['roadblocks'].length - 1].name }}</span>
                         </v-row>
                       </v-col>
                       <v-col cols="4" style="text-align: center">
-                        {{ barrages[8].credits_remains }}
+                        {{ student['roadblocks'][student['roadblocks'].length - 1].credits_remains }}
                       </v-col>
                       <v-col cols="4" style="text-align: center">
-                        {{ barrages[8].credits_obtains }}
-                        <span v-if="barrages[8].credits_needed">
-                        / {{ barrages[8].credits_needed}}
+                        {{ student['roadblocks'][student['roadblocks'].length - 1].credits_obtains }}
+                        <span v-if="student['roadblocks'][student['roadblocks'].length - 1].credits_needed">
+                        / {{ student['roadblocks'][student['roadblocks'].length - 1].credits_needed}}
                       </span>
                       </v-col>
                     </v-row>
@@ -257,12 +241,11 @@
                     <v-data-table
                         disable-sort
                         hide-default-footer
-                        v-if="barrages[8].is_roadblock"
                         :headers="detailsHeader"
                         :loading="detailLoading"
                         calculate-widths
                         item-key="codemodule"
-                        :items.sync="barrages[8].details[student['studentyear'] - 1]"
+                        :items.sync="student['roadblocks'][student['roadblocks'].length - 1].modules"
                     >
                       <template v-slot:item="{ item }">
                         <tr @click="openItem(item)" class="cursor-click">
@@ -305,17 +288,12 @@
                               </span>
                               </td>
                             </template>
-                            <span v-show="item.projects"
-                                  v-for="project in item.projects"
-                                  :key="project">
-                            <span>
-                              {{ project }}
+                            <span v-if="item.projects">
+                              {{ item.projects }}
                             </span>
-                            <br>
-                          </span>
-                            <span v-show="!item.projects">
-                            Aucune information sur les projets de ce module.
-                          </span>
+                            <span v-else>
+                              Aucune information sur les projets de ce module.
+                            </span>
                           </v-tooltip>
                         </tr>
                       </template>
@@ -330,6 +308,7 @@
                 class="my-3"
                 accordion
                 multiple
+                v-if="englishRoadblock"
                 focusable>
               <v-expansion-panel
                   readonly
@@ -337,11 +316,11 @@
               >
                 <v-expansion-panel-header expand-icon="mdi-menu-down" class="grey lighten-3">
                   <v-row no-gutters align="center"
-                         :class="barrages[1].textColor">
+                         :class="englishRoadblock.textColor">
                     <v-col cols="4">
                       <v-row no-gutters justify="space-between" align="center">
-                        <span>{{ barrages[1].name }}</span>
-                        <v-tooltip bottom v-if="barrages[1].credits_obtains < barrages[1].credits_needed">
+                        <span>{{ englishRoadblock.name }}</span>
+                        <v-tooltip bottom v-if="englishRoadblock.credits_obtains < englishRoadblock.credits_needed">
                           <template v-slot:activator="{ on, attrs }">
                             <v-icon color="red"
                                     v-on="on"
@@ -349,14 +328,14 @@
                           </template>
                           <span>Ce barrage nécessite votre attention</span>
                         </v-tooltip>
-                        <v-icon v-else-if="barrages[1]['credits_obtains'] >= barrages[1]['credits_needed']"
+                        <v-icon v-else-if="englishRoadblock['credits_obtains'] >= englishRoadblock['credits_needed']"
                                 color="green">
                           mdi-check
                         </v-icon>
                       </v-row>
                     </v-col>
                     <v-col cols="4" style="text-align: center">
-                      Score obtenu : <span class="font-weight-medium">{{ barrages[1].credits_obtains }}</span>
+                      Score obtenu : <span class="font-weight-medium">{{ englishRoadblock.credits_obtains }}</span>
                     </v-col>
                   </v-row>
                 </v-expansion-panel-header>
@@ -385,7 +364,7 @@
 <script>
   import axios from "axios";
   import { mapGetters } from 'vuex';
-  import { roadblocks } from "@/assets/roadblocks.js";
+  // import { roadblocks } from "@/assets/roadblocks.js";
   import Loading from 'vue-loading-overlay';
   import HubTable from "@/components/HubTable";
   import DevPCP from "@/components/DevPCP";
@@ -415,11 +394,11 @@
           block.textColor = "primary--text font-weight-medium";
       },
       isModuleObtained: function(module) {
-        if (!module['grade'])
+        if (!module['student_grade'])
           return (0);
-        if (module['grade'] !== '-' && module['grade'].toLowerCase().indexOf("echec") === -1)
+        if (module['student_grade'] !== '-' && module['student_grade'].toLowerCase().indexOf("echec") === -1)
           return (2);
-        else if (module['grade'] === '-')
+        else if (module['student_grade'] === '-')
           return (1);
         return (0);
       },
@@ -465,8 +444,14 @@
             });
             reject("No autologin provided.");
           }
+          let year = this.student['scolaryear'];
+          if (this.student['redoublant']) {
+            if (!this.student['redoublantModules'].includes(code))
+              year--;
+            console.log("[Redoublants] Code module " + code + " is year " + year);
+          }
           axios
-            .get("module/info/" + code + "/" + instance + "/" + this.student['scolaryear'], {
+            .get("module/info/" + code + "/" + instance + "/" + year, {
               headers: {
                 'autologin': autologin
               }
@@ -487,15 +472,17 @@
         return (promise);
       },
       getModuleNote: function (code) {
+        let highestScore = null;
         for (let i = this.student['notes'].length - 1; i >= 0; i--) {
           if (this.student['notes'][i]['codemodule'] === code &&
             parseInt(this.student['notes'][i]['scolaryear']) === parseInt(this.student['scolaryear'])) {
             if (code === 'B-ANG-058' && this.student['notes'][i]['title'].indexOf('Self-assessment') !== -1)
               continue;
-            return (this.student['notes'][i]);
+            if (this.student['notes'][i]['final_note'] > (highestScore ? highestScore['final_note'] : 0))
+              highestScore = this.student['notes'][i];
           }
         }
-        return null;
+        return highestScore;
       },
       removeItemAll(array, module) {
         let i = 0;
@@ -563,51 +550,56 @@
         });
       },
       setupInformations: async function () {
-        this.barrages[0].credits_obtains = this.student['credits'];
-        this.barrages[0].credits_needed = parseInt(this.student['studentyear']) * 60;
-        this.barrages[0].credits_remains = 0;
-        for (let i = 0; i < this.student['modules'].length; i++) {
-          if (this.student['modules'][i]['grade'] === "-")
-            this.barrages[0].credits_remains += this.student['modules'][i]['credits'];
-        }
-        this.barrages[1].credits_needed = roadblocks[1].score_needed[parseInt(this.student['studentyear']) - 1];
-        let tepitech = this.getModuleNote("B-ANG-058");
-        if (tepitech)
-          this.barrages[1].credits_obtains = tepitech['final_note'];
-        this.updateBlockColor(this.barrages[1]);
-        this.updateBlockColor(this.barrages[0]);
-        if (this.student['semester_code'][0] !== 'T') {
-          for (let i = 3; i < this.barrages.length; i++)
-            await this.updateRoadblockInfo(this.barrages[i]);
-        } else {
-          this.isNotBachelor = true;
-          this.barrages = this.barrages.slice(0, 2);
-          this.barrages.push(
-            {
-              name: "Extra Units",
-              is_roadblock: true,
-              credits_obtains: 0,
-              credits_needed: 0,
-              credits_remains: 0,
-              details: [
-                {},
-                {},
-                {needed: 0, modules: [
-                    {codemodule: "B-INN-500", codeinstance: "5-1", hub: true, projects: ["Experiences / Workshop / Talk / Meetup / Hackathon / Projet Hub"]},
-                    {codemodule: "B-PCP-000", pcp: true}
-                  ]}
-              ]
-            }
-          );
-          this.barrages.push({});
-          await this.updateRoadblockInfo(this.barrages[2]);
-          this.barrages[2].textColor = "none";
-        }
-        setTimeout(() => {
-          this.isLoading = false;
-          this.detailLoading = false;
-          this.$forceUpdate();
-        }, 2000);
+        // this.barrages[0].credits_obtains = this.student['credits'];
+        // this.barrages[0].credits_needed = parseInt(this.student['studentyear']) * 60;
+        // this.barrages[0].credits_remains = 0;
+        // for (let i = 0; i < this.student['modules'].length; i++) {
+        //   if (this.student['modules'][i]['grade'] === "-")
+        //     this.barrages[0].credits_remains += this.student['modules'][i]['credits'];
+        // }
+        // this.barrages[1].credits_needed = roadblocks[1].score_needed[parseInt(this.student['studentyear']) - 1];
+        // let tepitech = this.getModuleNote("B-ANG-058");
+        // if (tepitech)
+        //   this.barrages[1].credits_obtains = tepitech['final_note'];
+        // this.updateBlockColor(this.barrages[1]);
+        // this.updateBlockColor(this.barrages[0]);
+        // if (this.student['semester_code'][0] !== 'T') {
+        //   // for (let i = 3; i < this.barrages.length; i++)
+        //   //   await this.updateRoadblockInfo(this.barrages[i]);
+        //   // for (let i = 0; i < this.student['roadblocks'].length; i++)
+        //   //   await this.updateRoadblockInfo(this.student['roadblocks'][i]);
+        // } else {
+        //   this.isNotBachelor = true;
+        //   this.barrages = this.barrages.slice(0, 2);
+        //   this.barrages.push(
+        //     {
+        //       name: "Extra Units",
+        //       is_roadblock: true,
+        //       credits_obtains: 0,
+        //       credits_needed: 0,
+        //       credits_remains: 0,
+        //       details: [
+        //         {},
+        //         {},
+        //         {needed: 0, modules: [
+        //             {codemodule: "B-INN-500", codeinstance: "5-1", hub: true, projects: ["Experiences / Workshop / Talk / Meetup / Hackathon / Projet Hub"]},
+        //             {codemodule: "B-PCP-000", pcp: true}
+        //           ]}
+        //       ]
+        //     }
+        //   );
+        //   this.barrages.push({});
+        //   await this.updateRoadblockInfo(this.barrages[2]);
+        //   this.barrages[2].textColor = "none";
+        // }
+        // this.isLoading = false;
+        // this.detailLoading = false;
+        // this.$forceUpdate();
+        // setTimeout(() => {
+        //   this.isLoading = false;
+        //   this.detailLoading = false;
+        //   this.$forceUpdate();
+        // }, 2000);
       },
       toggleDialog(item) {
         if (item.hub)
@@ -629,7 +621,7 @@
     created: function () {
       let autologin = this.$cookies.get("autologin") || this.getAutologin;
       this.isLoading = true;
-      this.barrages = JSON.parse(JSON.stringify(roadblocks));
+      // this.barrages = JSON.parse(JSON.stringify(roadblocks));
 
       if (!autologin) {
         this.$toasted.show("Merci de vous authentifier pour accéder à cette page.", {
@@ -647,7 +639,7 @@
           }
         })
         .then((response) => {
-          if (response.data.error) {
+          if (response.data.error || response.data.type === "error") {
             this.$toasted.show("Une erreur est survenue. Vérifiez que vous avez acceptés les cookies et réessayez", {
               theme: "bubble",
               position: "bottom-center",
@@ -660,7 +652,24 @@
             return;
           }
           this.student = response.data;
-          this.setupInformations();
+          let creditsNeeded = this.student['studentyear'] * 60;
+          let remains = 0;
+          for (let i = 0; i < this.student['modules'].length; i++) {
+            if (this.student['modules'][i]['grade'] === "-")
+              remains += this.student['modules'][i]['credits'];
+          }
+          this.student['roadblocks'].unshift({ name: "Roadblocks", modules: [], roadblockModules: [] });
+          this.student['roadblocks'].unshift({ name: "Crédits", credits_needed: creditsNeeded, credits_obtains: this.student['credits'], credits_remains: remains, modules: [], roadblockModules: [] });
+          this.englishRoadblock = this.student['roadblocks'][2];
+          // console.log(this.student);
+          // this.setupInformations();
+          this.student['roadblocks'].forEach((roadblock) => {
+            if (roadblock.name.indexOf('hors roadblocks') === -1)
+              this.updateBlockColor(roadblock);
+          });
+          this.isLoading = false;
+          this.detailLoading = false;
+          this.$forceUpdate();
         }).catch((err) => {
           this.$toasted.show("Une erreur est survenue. Vérifiez que vous avez acceptés les cookies et réessayez.", {
             theme: "bubble",
@@ -671,9 +680,9 @@
       });
     },
     watch: {
-      barrages: function(val) {
-        this.$forceUpdate();
-      },
+      // barrages: function(val) {
+      //   this.$forceUpdate();
+      // },
     },
     data: () => ({
       isLoading: false,
@@ -716,7 +725,8 @@
           value: "credits_remains"
         }
       ],
-      barrages: []
+      englishRoadblock: {}
+      // barrages: []
     })
   }
 </script>
@@ -728,6 +738,10 @@
 
   .profile-img .v-image__image {
     background-repeat: repeat;
+  }
+
+  .v-expansion-panel-content__wrap {
+    padding-bottom: 0;
   }
 
   .modules-table .theme--light.v-expansion-panels .v-expansion-panel--disabled {

@@ -5,11 +5,15 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    autologin: ""
+    autologin: "",
+    accessToken: ""
   },
   mutations: {
     setAutologin(state, text) {
       state.autologin = text;
+    },
+    setAccessToken(state, text) {
+      state.accessToken = text;
     }
   },
   actions: {
@@ -17,6 +21,9 @@ export default new Vuex.Store({
   getters: {
     getAutologin: state => {
       return state.autologin;
+    },
+    getAccessToken: state => {
+      return state.accessToken;
     }
   },
   modules: {

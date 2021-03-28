@@ -39,12 +39,12 @@
                      v-for="(module, j) in block.details[student['studentyear'] - 1]"
                      :key="j">
                 <v-col cols="7"
-                       @click="openItem(module)"
+                       @click="openItem(block, module)"
                        style="cursor: pointer">
                   {{ module['title'] }} ({{ module['codemodule'] }})
                 </v-col>
                 <v-col cols="3" class="text-center"
-                       @click="openItem(module)"
+                       @click="openItem(block, module)"
                        style="cursor: pointer">
                   {{ module['credits'] }}
                 </v-col>
@@ -60,6 +60,18 @@
                     <v-icon dark v-if="!module.toggle">mdi-plus</v-icon>
                     <v-icon dark v-else>mdi-minus</v-icon>
                   </v-btn>
+                  <v-btn
+                      class="mx-2"
+                      v-else-if="module['codemodule'] && module['codemodule'].includes('B-INN') > 0"
+                      fab
+                      dark
+                      small
+                      elevation="0"
+                      color="green"
+                      @click="openItem(block, module)"
+                    >
+                    <v-icon dark v-if="!module.toggle">mdi-cursor-default-click</v-icon>
+                  </v-btn>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -72,6 +84,7 @@
                :height="128"
                :width="128"
       ></loading>
+      <HubCreditsChoice v-model="showHubDialog" @close="saveHubCredits"/>
     </v-row>
   </v-container>
 </template>
@@ -80,16 +93,20 @@
   import { roadblocks } from "../assets/roadblocks";
   import Loading from 'vue-loading-overlay';
   import axios from "axios";
+  import HubCreditsChoice from "../components/HubCreditsChoice";
 
   export default {
     name: "Calculator",
     components: {
-      Loading
+      Loading,
+      HubCreditsChoice
     },
     data: () => ({
       credits: 0,
+      showHubDialog: false,
       isLoading: false,
       isNotBachelor: false,
+      hubItem: false,
       student: {},
       validationBlocks: []
     }),
@@ -100,8 +117,13 @@
 
         for (let i = 0; i < this.validationBlocks.length; i++) {
           for (let j = 0; j < this.validationBlocks[i].details[year].length; j++) {
-            if (this.validationBlocks[i].details[year][j].toggle)
-              array.push(this.validationBlocks[i].details[year][j].codemodule);
+            if (this.validationBlocks[i].details[year][j].toggle) {
+              let detail = this.validationBlocks[i].details[year][j];
+              if (detail.codemodule.includes('B-INN'))
+                array.push({ code: detail.codemodule, credits: detail.credits });
+              else
+                array.push(detail.codemodule);
+            }
           }
         }
         if (this.$cookies.get('acceptCookies'))
@@ -119,7 +141,10 @@
         for (let i = 0; i < config.length; i++) {
           for (let k = 0; k < this.validationBlocks.length; k++) {
             for (let x = 0; x < this.validationBlocks[k].details[year].length; x++) {
-              if (this.validationBlocks[k].details[year][x]['codemodule'] === config[i])
+              if (this.validationBlocks[k].details[year][x]['codemodule'] === config[i].code && config[i].credits) {
+                this.validationBlocks[k].details[year][x].credits = config[i].credits;
+                this.toggleModule(this.validationBlocks[k], this.validationBlocks[k].details[year][x], true);
+              } else if (this.validationBlocks[k].details[year][x]['codemodule'] === config[i])
                 this.toggleModule(this.validationBlocks[k], this.validationBlocks[k].details[year][x], true);
             }
           }
@@ -290,7 +315,6 @@
                 if (!res.error &&
                   parseInt(res['scolaryear']) === parseInt(this.student['scolaryear'])) {
                   newYearBlock.push(res);
-                  this.isLoading = false;
                 }
               }
             )
@@ -309,16 +333,23 @@
         }
         for (let i = 0; i < this.validationBlocks.length; i++)
           await this.updateRoadblockInfo(this.validationBlocks[i]);
+        this.isLoading = false;
       },
-      openItem(item) {
-        if (item.hub || item.pcp) {
-          this.toggleDialog(item);
+      openItem(block, item) {
+        if (item.title.includes("Hub")) {
+          this.hubItem = item;
+          if (item.toggle)
+            this.toggleModule(block, item);
+          this.showHubDialog = !this.showHubDialog;
           return;
         }
         if (!item['scolaryear'] || !item['codemodule'] || !item['codeinstance'])
           return;
         let url = "https://intra.epitech.eu/module/" + item['scolaryear'] + "/" + item['codemodule'] + "/" + item['codeinstance'];
         window.open(url);
+      },
+      saveHubCredits(value) {
+        this.hubItem.credits = value;
       }
     },
     created() {
@@ -326,6 +357,8 @@
       this.isLoading = true;
       let roadblocksCopy = JSON.parse(JSON.stringify(roadblocks));
 
+      if (!this.student)
+        return;
       if (!autologin) {
         this.$toasted.show("Merci de vous authentifier pour accéder à cette page.", {
           theme: "bubble",

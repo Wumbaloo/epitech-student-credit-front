@@ -89,6 +89,22 @@ const routes = [
         }
       ]
     }
+  },
+  {
+    path: '/backoffice/auth',
+    name: 'backoffice-auth',
+    component: () => import('../views/BackOffice/Login.vue'),
+    meta: {
+      title: 'Backoffice | Login'
+    }
+  },
+  {
+    path: '/backoffice/index',
+    name: 'backoffice-index',
+    component: () => import('../views/BackOffice/Index.vue'),
+    meta: {
+      title: 'Backoffice | Epi-Planner'
+    }
   }
 ];
 

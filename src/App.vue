@@ -48,9 +48,9 @@
     </v-app-bar>
 
     <v-main>
-      <keep-alive>
+<!--      <keep-alive>-->
         <router-view/>
-      </keep-alive>
+<!--      </keep-alive>-->
       <v-bottom-sheet
           v-model="toggleCookies"
           class="cookies-popup"

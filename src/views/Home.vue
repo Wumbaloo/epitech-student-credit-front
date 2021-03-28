@@ -110,6 +110,19 @@
         </v-stepper>
       </v-col>
     </v-row>
+    <v-btn
+        color="red"
+        fab
+        absolute
+        large
+        dark
+        bottom
+        left
+        :to="{ name: 'backoffice-auth' }"
+        class="mb-12"
+    >
+      <v-icon>mdi-login</v-icon>
+    </v-btn>
   </v-container>
 </template>
 
@@ -132,13 +145,9 @@ export default {
     if (autologin && this.$cookies.get("acceptCookies"))
       this.$router.push('about');
   },
-  // updated() {
-  //   let autologin = this.$cookies.get("autologin") || this.getAutologin;
-  //
-  //   this.$store.commit("setAutologin", autologin);
-  //   if (autologin && this.$cookies.get("acceptCookies"))
-  //     this.$router.push('about');
-  // },
+  updated() {
+    this.$destroy();
+  },
   methods: {
     toggleHelp(forceClose) {
       if (forceClose)

@@ -184,11 +184,11 @@ let roadblocks = [
       { // Tek 1
         needed: 3,
         modules: [
-          {codemodule: "B-ANG-001", codeinstance: "0-1", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "B-ANG-001", codeinstance: "0-3", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "B-ANG-001", codeinstance: "0-4", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-1", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-3", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-4", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]},
           {codemodule: "B-FRE-100", projects: ["Mail professionnel", "RUSH - Les Seigneurs des mots", "Lettre argumentée"]},
           {codemodule: "B-FRE-200", projects: ["\"Le mode d'emploi : prendre le lecteur par la main\"", "\"Faire préciser\"", "\"La lettre de vente : informer, argumenter, valoriser\""]},
           {codemodule: "B-PCP-000", pcp: true},
@@ -202,20 +202,22 @@ let roadblocks = [
           {codemodule: "B-FRE-400", projects: ["Mission délicate : recadrer un collègue", "Diaporama pour décrocher 1 million de dollars", "Rédiger un bilan d'expérience"]},
           {codemodule: "B-PCP-000", pcp: true},
           {codemodule: "G-EPI-004"},
-          {codemodule: "B-ANG-001", codeinstance: "0-1", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "B-ANG-001", codeinstance: "0-3", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "B-ANG-001", codeinstance: "0-4", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]}
+          // {codemodule: "B-ANG-001", codeinstance: "0-1", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta]},
+          // {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta]},
+          // {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta]},
+          {codemodule: "B-ANG-001", codeinstance: "0-4", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-5", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-6", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-7", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]}
         ]
       },
       { // Tek 3
         needed: 3,
         modules: [
           {codemodule: "B-FRE-501", projects: ["Avocat du diable", "3 emails", "Mémo professionnel", "Informer : Le magazine du geek"]},
-          {codemodule: "B-ANG-001", codeinstance: "0-1", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
-          {codemodule: "B-ANG-001", codeinstance: "0-3", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-1", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-2", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]},
+          {codemodule: "B-ANG-001", codeinstance: "0-3", projects: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta"]},
           {codemodule: "B-PCP-000", pcp: true},
           {codemodule: "G-FRE-010", codeinstance: "FR-0-1"},
           {codemodule: "G-EPI-004"}

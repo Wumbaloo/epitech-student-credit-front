@@ -7,9 +7,10 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "register-service-worker": "^1.7.1",
+    "sha256": "^0.2.0",
     "vue": "^2.6.11",
     "vue-cookies": "^1.7.0",
     "vue-loading-overlay": "^3.3.2",

@@ -70,25 +70,46 @@
       showAddStudent: false,
       selectedStudent: 0,
       students: [],
-      files: []
+      files: [],
     }),
     created() {
+      let autologin = this.$cookies.get("autologin") || this.getAutologin;
 
-      // let autologin = this.$cookies.get("autologin") || this.getAutologin;
+      if (!autologin || !autologin.includes('8ab6ca98a71c04aa885970018')) {
+        this.$toasted.show("Vous n'êtes pas autorisé à visiter cette page.", {
+          theme: "bubble",
+          position: "bottom-center",
+          duration : 5000
+        });
+        this.$router.push({ name: 'home' }).catch(() => {});
+      }
     },
     mounted() {
-      axios.get("redoublants").then((data) => {
+      this.refreshStudents();
+    },
+    methods: {
+      refreshStudents() {
+        axios.get("redoublants").then((data) => {
           if (!data.data.success) {
             this.message = "An error occured. Please contact William GAUDFRIN";
+            this.$toasted.show(data.data.message, {
+              theme: "bubble",
+              position: "bottom-center",
+              duration: 5000
+            });
             return;
           }
           this.students = data.data.data;
-      }).catch((err) => {
-        this.message = "An error occured. Please contact William GAUDFRIN";
-        console.log(err);
-      });
-    },
-    methods: {
+        }).catch((err) => {
+          this.message = "An error occured. Please contact William GAUDFRIN";
+          this.$toasted.show("An error occured. Please contact William GAUDFRIN", {
+            theme: "bubble",
+            position: "bottom-center",
+            duration: 5000
+          });
+          console.log(err);
+        });
+      },
       downloadStudents() {
         const link = document.createElement('a');
         link.href = axios.defaults.baseURL + "redoublants/retrieve";
@@ -100,23 +121,43 @@
         axios.delete('redoublants/' + this.students[this.selectedStudent].filename)
           .then(() => {
             this.students.splice(this.selectedStudent, 1);
-            this.message = "Success.";
-            console.log("Success");
         }).catch((err) => {
-          this.message = "An error occured. Please contact William GAUDFRIN";
+          this.$toasted.show("An error occured. Please contact William GAUDFRIN", {
+            theme: "bubble",
+            position: "bottom-center",
+            duration: 5000
+          });
           console.log(err);
         })
       },
       uploadStudents() {
         let formData = new FormData();
-        console.log(this.files);
-        formData.append("files", this.files);
+        for (let i = 0; i < this.files.length; i++) {
+          let file = this.files[i];
+
+          formData.append('files[' + i + ']', file);
+        }
         axios.post('redoublants', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
-        }).then(() => {
-          console.log("SUCCESS");
+        }).then((data) => {
+          if (!data.data.success) {
+            this.$toasted.show(data.data.message, {
+              theme: "bubble",
+              position: "bottom-center",
+              duration: 5000
+            });
+            return;
+          }
+          this.$toasted.show(data.data.message, {
+            theme: "bubble",
+            position: "bottom-center",
+            duration: 5000
+          });
+          this.files = [];
+          this.showAddStudent = false;
+          this.refreshStudents();
         }).catch((err) => {
           this.message = "An error occured. Please contact William GAUDFRIN";
           console.log(err);

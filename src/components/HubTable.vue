@@ -22,9 +22,11 @@
           >
           <v-row no-gutters justify="space-between">
             <div>
-              Responsable{{ module['resp'] && module['resp'].length > 1 ? 's' : ''}} du module HUB :
+<!--              Responsable{{  module['resp'] && module['resp'].length > 1 ? 's' : ''}} du module HUB :-->
+              Responsable{{ resps && resps.length > 1 ? 's' : ''}} du module HUB :
               <ul>
-                <li v-for="resp in module['resp']" :key="resp.title">
+                <li v-for="resp in resps" :key="resp.title">
+<!--                <li v-for="resp in module['resp']" :key="resp.title">-->
                   {{ resp.title }}
                 </li>
               </ul>
@@ -50,6 +52,14 @@
               <v-col cols="2" class="text-center">
                 Hackathon
               </v-col>
+<!--              <v-col-->
+<!--                  cols="2"-->
+<!--                  class="text-center"-->
+<!--                  v-for="column in columns"-->
+<!--                  :key="column.title"-->
+<!--              >-->
+<!--                  {{ column['title'] }}-->
+<!--              </v-col>-->
             </v-row>
           </v-card>
           <v-card outlined class="pa-2">
@@ -62,6 +72,8 @@
                      :key="i"
                      :cols="i === 0 ? 3 : 2">
                 {{ presences[column.title] }}
+<!--                      cols="2">-->
+<!--                {{ column['present'] }}-->
               </v-col>
             </v-row>
           </v-card>
@@ -74,6 +86,8 @@
                      class="text-center"
                      :key="i"
                      :cols="i === 0 ? 3 : 2">
+<!--                cols="2">-->
+<!--                {{ column['organizations_present'] }}-->
                 {{ organisations[column.title] }}
               </v-col>
             </v-row>
@@ -87,7 +101,24 @@
                      class="text-center"
                      :key="i"
                      :cols="i === 0 ? 3 : 2">
+<!--                     cols="2">-->
+<!--                {{ column['organizations_missing'] + column['missing'] }}-->
                 {{ missing[column.title] }}
+              </v-col>
+            </v-row>
+          </v-card>
+          <v-card outlined class="pa-2">
+            <v-row no-gutters>
+              <v-col cols="3">
+                En cours
+              </v-col>
+              <v-col v-for="(column, i) in columns"
+                     class="text-center"
+                     :key="i"
+                     :cols="i === 0 ? 3 : 2">
+                <!--                     cols="2">-->
+<!--                {{ column['waiting'] }}-->
+                {{ waitingForPresences[column.title] }}
               </v-col>
             </v-row>
           </v-card>
@@ -126,10 +157,14 @@
     },
     created() {
       this.innerValue = this.value;
+      // for (let i = 0; i < this.columns; i++) {
+      //   let found = this.student['hubDetails'].find(element => element.type.include(this.columns[i].possible_names));
+
+      // }
       this.refreshDetails();
     },
     data: () => ({
-      module: [],
+      resps: [],
       xp: 0,
       loading: false,
       columns: [
@@ -158,7 +193,7 @@
           ]
         },
         {
-          title: "hackaton",
+          title: "hackathon",
           possible_names: ["Hackathon"],
           points: [
             {present: 6, missing: 6}, // Participation
@@ -166,9 +201,10 @@
           ]
         }
       ],
-      presences: {xp: 0, talk: 0, workshop: 0, hackaton: 0},
-      organisations: {xp: 0, talk: 0, workshop: 0, hackaton: 0},
-      missing: {xp: 0, talk: 0, workshop: 0, hackaton: 0},
+      presences: {xp: 0, talk: 0, workshop: 0, hackathon: 0},
+      organisations: {xp: 0, talk: 0, workshop: 0, hackathon: 0},
+      missing: {xp: 0, talk: 0, workshop: 0, hackathon: 0},
+      waitingForPresences: {xp: 0, talk: 0, workshop: 0, hackathon: 0},
       innerValue: false
     }),
     watch: {
@@ -189,11 +225,13 @@
         this.innerValue = false;
         this.$emit('close');
       },
-      updateScore(name, status, manager) {
-        if (!status)
-          return;
+      updateScore(name, status, manager, title) {
         for (let i = 0; i < this.columns.length; i++) {
           if (this.columns[i].possible_names.includes(name)) {
+            if (!status || status === "eat") {
+              this.waitingForPresences[this.columns[i].title]++;
+              continue;
+            }
             if (status === "present" || status === "accept") {
               this.xp += this.columns[i].points[manager].present;
               if (manager === 1)
@@ -201,42 +239,47 @@
               else
                 this.presences[this.columns[i].title]++;
             } else {
+              console.log("You missed: " + title);
               this.xp -= this.columns[i].points[manager].missing;
               this.missing[this.columns[i].title]++;
             }
           }
         }
       },
-      setupInformations() {
-        let acti = this.module['activites'];
+      setupInformations(module) {
+        let acti = module['activites'];
 
         for (let i = 0; i < acti.length; i++) {
           for (let j = 0; j < acti[i]['events'].length; j++) {
             let organize = false;
             for (let k = 0; k < acti[i]['events'][j]['assistants'].length; k++) {
               if (acti[i]['events'][j]['assistants'][k]['login'] === this.student['login']) {
-                this.updateScore(acti[i]['type_title'], acti[i]['events'][j]['assistants'][k]['manager_status'], 1);
+                this.updateScore(acti[i]['type_title'], acti[i]['events'][j]['assistants'][k]['manager_status'], 1, acti[i]['title']);
                 organize = true;
               }
             }
             if (!organize) {
-              this.updateScore(acti[i]['type_title'], acti[i]['events'][j]['user_status'], 0);
+              if (acti[i]['events'][j]['already_register'])
+                this.updateScore(acti[i]['type_title'], acti[i]['events'][j]['user_status'], 0, acti[i]['title']);
             }
           }
         }
         this.loading = false;
       },
-      refreshDetails() {
+      async refreshDetails() {
+        // this.xp = this.student.hub['totalXp'];
+        // this.columns = this.student.hub['columns'];
+        // this.resps = this.student.hub['resps'];
         let autologin = this.$cookies.get("autologin") || this.getAutologin;
 
-        if (!this.student['scolaryear'] || this.loading)
+        if (!this.student || !this.student['scolaryear'] || this.loading)
           return;
         this.loading = true;
         let location = this.student['location'].split('/')[1];
         // if (!location)
         //   location = "LIL";
         axios
-          .get("module/info/B-INN-000/" + location + "-0-1/" + this.student['scolaryear'], {
+          .get("module/info/B-INN-000/FR-0-1/" + this.student['scolaryear'], {
             headers: {
               'autologin': autologin
             }
@@ -250,11 +293,19 @@
               // });
               this.$router.push({name: 'home'}).catch(() => {
               });
-              return;
             }
-            this.module = response.data;
-            this.setupInformations();
-          });
+            this.setupInformations(response.data);
+        });
+        axios
+          .get("module/info/B-INN-000/" + location + "-0-1/" + this.student['scolaryear'], {
+            headers: {
+              'autologin': autologin
+            }
+          }).then((answer) => {
+            this.resps = answer.data['resp'];
+            this.setupInformations(answer.data);
+          })
+          // });
         //   }).catch((err) => {
         //   this.$toasted.show(err.message, {
         //     theme: "bubble",
