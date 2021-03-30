@@ -4,7 +4,7 @@
         class="mb-4 pt-0"
         v-model="search"
         append-icon="mdi-magnify"
-        label="Search"
+        label="Rechercher"
         single-line
         outlined
         dense
@@ -115,7 +115,7 @@
     </v-dialog>
     <v-dialog v-model="deleteDialog" max-width="500px">
       <v-card>
-        <v-card-title class="headline">Êtes-vous sûr de vouloir supprimer ce roadblock?</v-card-title>
+        <v-card-title class="headline" style="word-break: break-word">Êtes-vous sûr de vouloir supprimer ce roadblock?</v-card-title>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="closeDelete">Annuler</v-btn>
@@ -146,11 +146,13 @@ export default {
       loading: true,
       editedIndex: -1,
       editedItem: {
+        id: 0,
         name: '',
         credits_needed: 0,
         tekYear: 0
       },
       defaultItem: {
+        id: 0,
         name: '',
         credits_needed: 0,
         tekYear: 0
@@ -205,8 +207,22 @@ export default {
       },
 
       deleteItemConfirm () {
-        this.roadblocks.splice(this.editedIndex, 1);
-        this.closeDelete();
+        axios
+          .delete("backoffice/roadblock/" + this.editedItem.id)
+          .then((response) => {
+            if (response.data.error)
+              return;
+            console.log(response.data.data);
+            this.closeDelete();
+            this.roadblocks.splice(this.editedIndex, 1);
+          }).catch((err) => {
+            this.$toasted.show(err.body || err, {
+              theme: "bubble",
+              position: "bottom-center",
+              duration : 5000
+            });
+            this.$router.push({ name: 'home' }).catch(() => {});
+        });
       },
 
       close () {
@@ -226,12 +242,33 @@ export default {
       },
 
       save () {
-        console.log(this.editedItem);
-        // if (this.editedIndex > -1) {
-        //   Object.assign(this.roadblocks[this.editedIndex], this.editedItem)
-        // } else {
-        //   this.roadblocks.push(this.editedItem)
-        // }
+        if (this.editedIndex > -1) {
+          Object.assign(this.roadblocks[this.editedIndex], this.editedItem);
+          axios
+            .post("backoffice/roadblock/" + this.editedItem.id, {
+              body: {
+                newName: this.editedItem.name,
+                newCreditsNeeded: this.editedItem.credits_needed,
+                year: this.editedItem.tekYear
+              }
+            })
+            .then((response) => {
+              if (response.data.error)
+                return;
+              console.log(response.data.data);
+              this.closeDelete();
+              this.roadblocks.splice(this.editedIndex, 1);
+            }).catch((err) => {
+            this.$toasted.show(err.body || err, {
+              theme: "bubble",
+              position: "bottom-center",
+              duration : 5000
+            });
+            this.$router.push({ name: 'home' }).catch(() => {});
+          });
+        } else {
+          this.roadblocks.push(this.editedItem);
+        }
         this.close();
       },
       refreshTable: function () {

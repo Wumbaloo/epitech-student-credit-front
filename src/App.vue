@@ -51,6 +51,7 @@
 <!--      <keep-alive>-->
         <router-view/>
 <!--      </keep-alive>-->
+      <Footer></Footer>
       <v-bottom-sheet
           v-model="toggleCookies"
           class="cookies-popup"
@@ -75,8 +76,11 @@
 </template>
 
 <script>
+import Footer from "./components/Footer";
+
 export default {
   name: 'App',
+  components: {Footer},
   data: () => ({
     logged: false,
     toggleCookies: false,

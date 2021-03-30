@@ -65,6 +65,8 @@ export default {
   }),
   methods: {
     tryLogin: function () {
+      if (this.usernameText.length === 0 || this.passwordText.length === 0)
+        return;
       axios
         .post("backoffice/login", {
           'username': this.usernameText,
@@ -82,10 +84,14 @@ export default {
           }
           this.usernameText = "";
           this.passwordText = "";
+          axios.defaults.headers = {
+            "Authorization": "Bearer " + response.data.data.accessToken
+          };
+          console.log(response.data.data.accessToken);
           this.$store.commit("setAccessToken", response.data.data.accessToken);
           this.$router.push({ name: 'backoffice-index' }).catch(() => {});
         }).catch((err) => {
-        this.$toasted.show("Une erreur est survenue.", {
+        this.$toasted.show(err.body || err, {
           theme: "bubble",
           position: "bottom-center",
           duration : 5000
